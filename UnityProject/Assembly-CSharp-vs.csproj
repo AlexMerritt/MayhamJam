@@ -48,6 +48,7 @@
   <ItemGroup>
      <Compile Include="Assets\Scrpits\FourDirectionMob.cs" />
      <Compile Include="Assets\Scrpits\LevelSwitch.cs" />
+     <Compile Include="Assets\Scrpits\MessageHandler.cs" />
      <Compile Include="Assets\Scrpits\PopUp.cs" />
      <Compile Include="Assets\Scrpits\Walker.cs" />
   </ItemGroup>

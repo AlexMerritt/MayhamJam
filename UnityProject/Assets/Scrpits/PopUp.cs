@@ -4,8 +4,10 @@ using System.Text;
 
 public class PopUp : MonoBehaviour
 {
-    public string header;
-    public string message;
+    public MessageIndex messageIndex;
+
+    string header;
+    string text;
 
     public Sprite image;
 
@@ -17,8 +19,15 @@ public class PopUp : MonoBehaviour
         UpdatePopUp();
     }
 
-    void UpdatePopUp()
+    public void UpdatePopUp()
     {
+        var messageHandler = GameObject.Find("MessageHandler").GetComponent<MessageHandler>();
+
+        Message message = messageHandler.GetMessage(messageIndex);
+
+        header = message.header;
+        text = message.text;
+
         UpdateHeader();
 
         UpdateText();
@@ -37,7 +46,7 @@ public class PopUp : MonoBehaviour
         var tc = gameObject.transform.Find("Text").gameObject.GetComponent<TextMesh>();
         tc.text = "";
 
-        string[] words = message.Split(' ');
+        string[] words = text.Split(' ');
 
         StringBuilder newSentence = new StringBuilder();
 
