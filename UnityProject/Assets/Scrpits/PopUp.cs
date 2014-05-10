@@ -7,9 +7,9 @@ public class PopUp : MonoBehaviour
     public string header;
     public string message;
 
-    public Texture picture;
+    public Sprite image;
 
-    const int MaxLineLength = 20;
+    const int MaxLineLength = 50;
 
     // Use this for initialization
     void Start()
@@ -19,9 +19,23 @@ public class PopUp : MonoBehaviour
 
     void UpdatePopUp()
     {
-        var tc = gameObject.GetComponent<GUIText>();
+        UpdateHeader();
 
+        UpdateText();
 
+        UpdateImage();
+    }
+
+    void UpdateHeader()
+    {
+        var hc = gameObject.transform.Find("Header").gameObject.GetComponent<TextMesh>();
+        hc.text = header;
+    }
+
+    void UpdateText()
+    {
+        var tc = gameObject.transform.Find("Text").gameObject.GetComponent<TextMesh>();
+        tc.text = "";
 
         string[] words = message.Split(' ');
 
@@ -29,7 +43,7 @@ public class PopUp : MonoBehaviour
 
         string line = "";
 
-        foreach(string word in words)
+        foreach (string word in words)
         {
             if ((line + word).Length > MaxLineLength)
             {
@@ -45,7 +59,14 @@ public class PopUp : MonoBehaviour
             newSentence.AppendLine(line);
         }
 
-        tc.text += header + "\n" + newSentence.ToString();
+        tc.text += newSentence.ToString();
+    }
+
+    void UpdateImage()
+    {
+        var sc = gameObject.transform.Find("Image").gameObject.GetComponent<SpriteRenderer>();
+
+        sc.sprite = image;
     }
 
     // Update is called once per frame
