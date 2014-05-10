@@ -14,12 +14,41 @@ public struct TileCoordinates {
 	public readonly int y;
 }
 
-public class Intersection {
-	public Intersection GetNeighbor (Direction dir) { }
+public class Intersection
+{
+	private Intersection left, right, up, down;
+	private TileCoordinates loc;
 
-	public Vector2 Coordinates { get; }
+	public Intersection GetNeighbor(Direction dir)
+	{
+		switch (dir) {
+		case Direction.Left: return this.left;
+		case Direction.Right: return this.right;
+		case Direction.Up: return this.up;
+		case Direction.Down: return this.down;
+		default: return null;
+		}
+	}
 
-	public bool DoesContain(Vector2 point) { }
+	public void SetNeighbor(Direction dir, Intersection neighbor)
+	{
+		switch (dir) {
+		case Direction.Left: this.left = neighbor; break;
+		case Direction.Right: this.right = neighbor; break;
+		case Direction.Up: this.up = neighbor; break;
+		case Direction.Down: this.down = neighbor; break;
+		}
+	}
+
+	public Vector2 Coordinates
+	{
+		get { return new Vector2(this.loc.x, this.loc.y); }
+	}
+
+	public bool DoesContain(Vector2 point)
+	{
+		return false;
+	}
 }
 
 public enum Terrain {
@@ -48,6 +77,7 @@ public enum BuildingType
 /// </summary>
 public class CityBuilding
 {
+	public BuildingType type;
 	public int x;
 	public int y;
 	public int width;
@@ -57,26 +87,29 @@ public class CityBuilding
 /// <summary>
 /// Helper class for generating the city grid.
 /// </summary>
-public class CityGenerator {
+internal class CityGenerator 
+{
 	/// <summary>
 	/// Minimum amount of space to place a road of the given size.
 	/// </summary>
-	private static readonly int[] RoadSpace = { 30, 100 };
+	private const int RoadSize1 = 30, RoadSize2 = 100;
 
 	private readonly Terrain[,] terrain;
 	private readonly int width, height;
 	private readonly List<CityBuilding> buildings;
+	private readonly System.Random random;
 
-	public CityGenerator(int width, int height)
+	public CityGenerator(int width, int height, int seed)
 	{
 		this.terrain = new Terrain[width, height];
 		this.width = width;
 		this.height = height;
+		this.random = new System.Random(seed);
 	}
 
 	public void Generate()
 	{
-
+		this.Generate(0, 0, this.width, this.height, new ArraySegment<BuildingType>(null, 0, 0));
 	}
 
 	/// <summary>
@@ -88,42 +121,40 @@ public class CityGenerator {
 	/// <param name="size">The width of the road.</param>
 	private bool PlaceRoad(int space, out int location, out int size)
 	{
-		int maxsz = 0;
-		while (maxsz < RoadSpace.Length && space >= RoadSpace[maxsz]) {
-			maxsz++;
-		}
+		int maxsz;
+		if (space >= RoadSize2)
+			maxsz = 2;
+		else if (space >= RoadSize1)
+			maxsz = 1;
+		else
+			maxsz = 0;
 		if (maxsz == 0) {
 			location = 0;
 			size = 0;
 			return false;
 		} else {
-			location = Random(space / 3, space - space / 3 - maxsz);
+			location = this.random.Next(space / 3, space - space / 3 - (maxsz * 2 - 1));
 			size = maxsz;
 			return true;
 		}
 	}
 
+	/// <summary>
+	/// Split special buildings between two regions of roughly equal size.
+	/// </summary>
+	/// <param name="x">The input special buildings.</param>
+	/// <param name="y">Output buildings for one region.</param>
+	/// <param name="z">Output buildings for the other region.</param>
 	private void Split(ArraySegment<BuildingType> x, out ArraySegment<BuildingType> y, out ArraySegment<BuildingType> z)
 	{
-		if (x == null) {
-			y = null;
-			z = null;
-			return;
+		int amt1 = x.Count / 2, amt2 = x.Count - amt1;
+		if (this.random.Next(0, 2) == 0) {
+			int t = amt1;
+			amt1 = amt2;
+			amt2 = t;
 		}
-		int amt = x.Count / 2;
-		ArraySegment<BuildingType> a, b;
-		if (amt == 0) {
-			a = x;
-			b = null;
-		} else {
-			a = new ArraySegment<BuildingType>(x.Array, 0, amt);
-			b = new ArraySegment<BuildingType>(x.Array, amt, x.Count - amt);
-		}
-		if (Random.Range(0, 2) == 0) {
-			x = a; y = b;
-		} else {
-			x = b; y = a;
-		}
+		y = new ArraySegment<BuildingType>(x.Array, x.Offset, amt1);
+		z = new ArraySegment<BuildingType>(x.Array, x.Offset + amt1, amt2);
 	}
 
 	/// <summary>
@@ -155,6 +186,8 @@ public class CityGenerator {
 				return;
 			}
 		}
+
+		// Fill in sidewalk for this region.
 
 		this.terrain[x, y] = Terrain.Sidewalk11;
 		this.RectFill(x, y + 1, 1, height - 2, Terrain.Sidewalk12);
