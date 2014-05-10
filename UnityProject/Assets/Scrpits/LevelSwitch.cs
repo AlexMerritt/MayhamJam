@@ -24,7 +24,7 @@ public class LevelSwitch : MonoBehaviour
         if (Input.GetKeyDown(Advance))
         {
             //Application.LoadLevel("testscene");
-            //SwitchScene();
+            SwitchScene();
         }
         if (Input.GetKeyDown(Exit))
         {
@@ -39,8 +39,9 @@ public class LevelSwitch : MonoBehaviour
             Application.Quit();
         }
 
-        else if (NextLevel == LevelCode.MainMenu)
+        else if (NextLevel == LevelCode.Game)
         {
+            Application.LoadLevel("Game");
         }
 
     }
