@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
 public struct TileCoordinates {
-	TileCoordinates(int x, int y) { this.x = x; this.y = y; }
+	public TileCoordinates(int x, int y) { this.x = x; this.y = y; }
 
 	/// <summary>
 	/// Y position in tile coordinates.
@@ -21,6 +22,11 @@ public class Intersection
 {
 	private Intersection left, right, up, down;
 	private TileCoordinates loc;
+
+	public Intersection(int x, int y)
+	{
+		this.loc = new TileCoordinates(x, y);
+	}
 
 	public Intersection GetNeighbor(Direction dir)
 	{
@@ -88,11 +94,48 @@ public class CityBuilding
 	public int height;
 }
 
+
+
 /// <summary>
 /// Helper class for generating the city grid.
 /// </summary>
 internal class CityGrid 
 {
+	private class StreetEnd
+	{
+		/// <summary>
+		/// Create a pair of connected street ends.
+		/// </summary>
+		public static void Pair(int roadsize, int location, Direction dir, out StreetEnd first, out StreetEnd second)
+		{
+			first = new StreetEnd { roadsize = roadsize, location = location, direction = dir };
+			second = new StreetEnd { roadsize = roadsize, location = location, direction = dir.Opposite() };
+			first.other = second;
+			second.other = first;
+		}
+
+		/// <summary>
+		/// Connect the street to an intersection.
+		/// </summary>
+		public void Connect(Intersection i)
+		{
+			if (this.other != null) {
+				this.other.other = null;
+				this.other.intersection = i;
+			}
+			if (this.intersection != null) {
+				this.intersection.SetNeighbor(this.direction, i);
+				i.SetNeighbor(this.direction.Opposite(), this.intersection);
+			}
+		}
+
+		public int roadsize;
+		public int location;
+		public Direction direction;
+		public Intersection intersection;
+		public StreetEnd other;
+	}
+
 	/// <summary>
 	/// Minimum amount of space to place a road of the given size.
 	/// </summary>
@@ -125,22 +168,17 @@ internal class CityGrid
 	/// <param name="size">The width of the road.</param>
 	private bool PlaceRoad(int space, out int location, out int size)
 	{
-		int maxsz;
-		if (space >= RoadSize2)
-			maxsz = 2;
-		else if (space >= RoadSize1)
-			maxsz = 1;
-		else
-			maxsz = 0;
-		if (maxsz == 0) {
+		if (space >= RoadSize2) {
+			size = 1;
+		} else if (space >= RoadSize1) {
+			size = 0;
+		} else {
 			location = 0;
 			size = 0;
 			return false;
-		} else {
-			location = this.random.Next(space / 3, space - space / 3 - (maxsz * 2 - 1));
-			size = maxsz;
-			return true;
 		}
+		location = this.random.Next(space / 3, space - space / 3);
+		return true;
 	}
 
 	/// <summary>
@@ -161,6 +199,112 @@ internal class CityGrid
 		z = new ArraySegment<BuildingType>(x.Array, x.Offset + amt1, amt2);
 	}
 
+	private List<StreetEnd> GenerateRoad(int x, int y, int width, int height, ArraySegment<BuildingType> specials)
+	{
+		ArraySegment<BuildingType> spec1, spec2;
+		this.Split(specials, out spec1, out spec2);
+		int roadloc, roadsize, absloc;
+		bool isHorizontal;
+		List<StreetEnd> ends1, ends2;
+		Direction startDir, subDir;
+
+		// Subdivide the rectangle into two smaller ones,
+		// then generate the city in each rectangle, with a road between.
+
+		if (width > height || (width == height && this.random.Next(0, 2) == 0)) {
+			if (!this.PlaceRoad(width, out roadloc, out roadsize))
+				return null;
+			isHorizontal = true;
+			absloc = roadloc + x;
+			if (roadsize == 0) {
+				this.RectFill(x + roadloc,            y, 1,        height, Terrain.RoadYellowVert);
+			} else {
+				this.RectFill(x + roadloc - roadsize, y, roadsize, height, Terrain.RoadWhiteVert);
+				this.RectFill(x + roadloc,            y, 1,        height, Terrain.RoadYellow2Vert);
+				this.RectFill(x + roadloc + 1,        y, roadsize, height, Terrain.RoadWhiteVert);
+			}
+			ends1 = this.Generate(x, y, roadloc - roadsize, height, spec1);
+			ends2 = this.Generate(x + roadloc + roadsize + 1, y, width - roadloc - roadsize - 1, height, spec2);
+			startDir = Direction.Down;
+			subDir = Direction.Left;
+		} else {
+			if (!this.PlaceRoad(height, out roadloc, out roadsize))
+				return null;
+			isHorizontal = false;
+			absloc = roadloc + y;
+			if (roadsize == 0) {
+				this.RectFill(x, y + roadloc,            width, 1,        Terrain.RoadYellowHoriz);
+			} else {
+				this.RectFill(x, y + roadloc - roadsize, width, roadsize, Terrain.RoadWhiteHoriz);
+				this.RectFill(x, y + roadloc,            width, 1,        Terrain.RoadYellow2Horiz);
+				this.RectFill(x, y + roadloc + 1,        width, roadsize, Terrain.RoadWhiteHoriz);
+			}
+			ends1 = this.Generate(x, y, width, roadloc - roadsize, spec1);
+			ends2 = this.Generate(x, y + roadloc + roadsize + 1, width, height - roadloc - roadsize - 1, spec2);
+			startDir = Direction.Left;
+			subDir = Direction.Down;
+		}
+
+		// Update the road intersections.
+
+		List<StreetEnd> outputEnds = new List<StreetEnd>(2);
+		List<StreetEnd> intersectionEnds = new List<StreetEnd>();
+
+		if (ends1 != null) {
+			Direction dir = subDir.Opposite();
+			foreach (StreetEnd end in ends1) {
+				if (end.direction == dir)
+					intersectionEnds.Add(end);
+				else
+					outputEnds.Add(end);
+			}
+		}
+		
+		if (ends2 != null) {
+			Direction dir = subDir;
+			foreach (StreetEnd end in ends2) {
+				if (end.direction == dir)
+					intersectionEnds.Add(end);
+				else
+					outputEnds.Add(end);
+			}
+		}
+		
+		StreetEnd first, last;
+		StreetEnd.Pair(roadsize, absloc, startDir, out first, out last);
+		Intersection intersection = null;
+		int lastLoc = 0;
+		Debug.Log("Starting");
+		foreach (StreetEnd end in intersectionEnds.OrderBy(end => end.location)) {
+			Debug.Log(string.Format("Intersection at {0} {1}", end.location, end.direction));
+			if (intersection == null || lastLoc != end.location) {
+				if (isHorizontal)
+					intersection = new Intersection(absloc, end.location);
+				else
+					intersection = new Intersection(end.location, absloc);
+				lastLoc = end.location;
+				StreetEnd first2, last2;
+				StreetEnd.Pair(roadsize, absloc, startDir, out first2, out last2);
+				last.Connect(intersection);
+				first2.Connect(intersection);
+				last = last2;
+			}
+			end.Connect(intersection);
+			if (end.roadsize >= roadsize) {
+				int start = end.location - end.roadsize;
+				int size = end.roadsize * 2 + 1;
+				if (isHorizontal)
+					this.RectFill(x + roadloc - roadsize, start, roadsize * 2 + 1, size, Terrain.Intersection);
+				else
+					this.RectFill(start, y + roadloc - roadsize, size, roadsize * 2 + 1, Terrain.Intersection);
+			}
+		}
+
+		outputEnds.Add(first);
+		outputEnds.Add(last);
+		return outputEnds;
+	}
+	
 	/// <summary>
 	/// Generate city data in the given region.
 	/// </summary>
@@ -169,42 +313,13 @@ internal class CityGrid
 	/// <param name="width">The number of tiles wide.</param>
 	/// <param name="height">The number of tiles high.</param>
 	/// <param name="specials">Special buildings to place in this region.</param>
-	private void Generate(int x, int y, int width, int height, ArraySegment<BuildingType> specials)
+	private List<StreetEnd> Generate(int x, int y, int width, int height, ArraySegment<BuildingType> specials)
 	{
+		Debug.Log("HERE");
 		// Debug.Log(string.Format("CityGrid.Generate {0} {1} {2} {3}", x, y, width, height));
-		int roadloc, roadsize;
-		ArraySegment<BuildingType> spec1, spec2;
-		if (width > height) {
-			if (this.PlaceRoad(width, out roadloc, out roadsize)) {
-				int roadtiles = roadsize * 2 - 1;
-				this.Split(specials, out spec1, out spec2);
-				if (roadsize == 1) {
-					this.RectFill(x + roadloc,                y, 1,            height, Terrain.RoadYellowVert);
-				} else {
-					this.RectFill(x + roadloc,                y, roadsize - 1, height, Terrain.RoadWhiteVert);
-					this.RectFill(x + roadloc + roadsize - 1, y, 1,            height, Terrain.RoadYellow2Vert);
-					this.RectFill(x + roadloc + roadsize,     y, roadsize - 1, height, Terrain.RoadWhiteVert);
-				}
-				this.Generate(x, y, roadloc, height, spec1);
-				this.Generate(x + roadloc + roadtiles, y, width - roadloc - roadtiles, height, spec2);
-				return;
-			}
-		} else {
-			if (this.PlaceRoad(height, out roadloc, out roadsize)) {
-				int roadtiles = roadsize * 2 - 1;
-				this.Split(specials, out spec1, out spec2);
-				if (roadsize == 1) {
-					this.RectFill(x, y + roadloc,                width, roadsize,     Terrain.RoadYellowHoriz);
-				} else {
-					this.RectFill(x, y + roadloc,                width, roadsize - 1, Terrain.RoadWhiteHoriz);
-					this.RectFill(x, y + roadloc + roadsize - 1, width, roadsize,     Terrain.RoadYellow2Horiz);
-					this.RectFill(x, y + roadloc + roadsize,     width, roadsize - 1, Terrain.RoadWhiteHoriz);
-				}
-				this.Generate(x, y, width, roadloc, spec1);
-				this.Generate(x, y + roadloc + roadtiles, width, height - roadloc - roadtiles, spec2);
-				return;
-			}
-		}
+		List<StreetEnd> result = this.GenerateRoad(x, y, width, height, specials);
+		if (result != null)
+			return result;
 
 		// Fill in sidewalk for this region.
 
@@ -219,6 +334,8 @@ internal class CityGrid
 		this.terrain[x + width - 1, y] = Terrain.Sidewalk31;
 		this.RectFill(x + width - 1, y + 1, 1, height - 2, Terrain.Sidewalk32);
 		this.terrain[x + width - 1, y + height - 1] = Terrain.Sidewalk33;
+
+		return null;
 	}
 
 	private void RectFill(int x, int y, int width, int height, Terrain tile)

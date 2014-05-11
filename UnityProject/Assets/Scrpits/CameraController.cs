@@ -12,9 +12,7 @@ public class CameraController : MonoBehaviour {
 	void Update () {
 		float xAxisValue = Input.GetAxis("Horizontal");
 		float yAxisValue = Input.GetAxis("Vertical");
-		if(Camera.current != null)
-		{
+		if (Camera.current != null)
 			Camera.current.transform.Translate(new Vector3(xAxisValue, yAxisValue, 0.0f));
-		}
 	}
 }
