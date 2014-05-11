@@ -20,7 +20,7 @@ public class BuildingSpawner : MonoBehaviour {
 			Debug.LogError(string.Format("Cannot find building sprite: {0}", name));
 			return;
 		}
-		GameObject obj = (GameObject)GameObject.Instantiate(this.Building, new Vector3(x, y), Quaternion.identity);
+		GameObject obj = (GameObject)GameObject.Instantiate(this.Building, new Vector3(x, y, (float)y * 0.01f - 6.0f), Quaternion.identity);
 		SpriteRenderer render = obj.GetComponent<SpriteRenderer>();
 		render.sprite = sprite;
 	}
