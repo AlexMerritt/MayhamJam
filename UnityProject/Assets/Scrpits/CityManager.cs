@@ -13,9 +13,9 @@ public class CityManager : MonoBehaviour
 {
     CityState cityState;
 
-    int chaosLevel;
+    float chaosLevel;
 
-    int maxChaosLevel;
+    float maxChaosLevel;
 
     public int chaosLossPerSecond;
 
@@ -26,9 +26,9 @@ public class CityManager : MonoBehaviour
     {
         cityState = CityState.Normal;
 
-        maxChaosLevel = 99;
+        maxChaosLevel = 99.0f;
 
-        chaosLevel = 0;
+        chaosLevel = 0.0f;
 
         timer = 0.0f;
 	}
@@ -62,7 +62,7 @@ public class CityManager : MonoBehaviour
         return (CityState)(level / 25);
     }
 
-    public void AddChaos(int value)
+    public void AddChaos(float value)
     {
         //Debug.Log("Adding Chaos");
         chaosLevel += value;
@@ -88,11 +88,11 @@ public class CityManager : MonoBehaviour
 
     public int GetChaosLevel()
     {
-        return chaosLevel;
+        return (int)chaosLevel;
     }
 
     public float GetChaosLevelf()
     {
-        return (float)chaosLevel / (float)maxChaosLevel;
+        return chaosLevel / maxChaosLevel;
     }
 }
