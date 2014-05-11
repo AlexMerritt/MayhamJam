@@ -123,6 +123,7 @@ public class MessageHandler : MonoBehaviour
 
     public Message GetMessage(MessageIndex index)
     {
+       
         return messages[(int)index];
     }
 
@@ -135,7 +136,7 @@ public class MessageHandler : MonoBehaviour
         
         activeMessages = new Queue<MessageIndex>();
 
-        currentDelay = 0.0f;
+        currentDelay = messageDelay;
 	}
 
     private void LoadMessages()

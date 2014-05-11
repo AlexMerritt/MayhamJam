@@ -59,8 +59,10 @@
      <Compile Include="Assets\Scrpits\LevelSwitch.cs" />
      <Compile Include="Assets\Scrpits\MessageHandler.cs" />
      <Compile Include="Assets\Scrpits\Monster.cs" />
+     <Compile Include="Assets\Scrpits\MonsterControler.cs" />
      <Compile Include="Assets\Scrpits\ParticleHelper.cs" />
      <Compile Include="Assets\Scrpits\PopUp.cs" />
+     <Compile Include="Assets\Scrpits\SongControler.cs" />
      <Compile Include="Assets\Scrpits\TestControls.cs" />
      <Compile Include="Assets\Scrpits\TestSpawner.cs" />
      <Compile Include="Assets\Scrpits\UIManager.cs" />
