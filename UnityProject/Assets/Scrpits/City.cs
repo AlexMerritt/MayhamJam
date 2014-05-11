@@ -4,10 +4,13 @@ using System.Collections;
 using System.Collections.Generic;
 
 public struct TileCoordinates {
+	TileCoordinates(int x, int y) { this.x = x; this.y = y; }
+
 	/// <summary>
 	/// Y position in tile coordinates.
 	/// </summary>
 	public readonly int x;
+
 	/// <summary>
 	/// Y position in tile coordinates.
 	/// </summary>
@@ -42,7 +45,7 @@ public class Intersection
 
 	public Vector2 Coordinates
 	{
-		get { return new Vector2(this.loc.x, this.loc.y); }
+		get { return new Vector2(this.loc.x + 0.5f, this.loc.y + 0.5f); }
 	}
 
 	public bool DoesContain(Vector2 point)
@@ -52,10 +55,11 @@ public class Intersection
 }
 
 public enum Terrain {
-	Lot,
-	Sidewalk11, Sidewalk12, Sidewalk13, Sidewalk21, Sidewalk22, Sidewalk23, Sidewalk31, Sidewalk32, Sidewalk33,
-	Intersection,
-	RoadYellowHoriz, RoadYellowVert, RoadWhiteHoriz, RoadWhiteVert
+	// Note: these are ordered to match the sprite sheet
+	Sidewalk11, Sidewalk21, Sidewalk31, RoadWhiteVert,
+	Sidewalk12, Sidewalk22, Sidewalk32, RoadWhiteHoriz,
+	Sidewalk13, Sidewalk23, Sidewalk33, RoadYellowVert,
+	Intersection, RoadYellow2Vert, RoadYellow2Horiz, RoadYellowHoriz
 }
 
 public enum BuildingType
@@ -87,19 +91,18 @@ public class CityBuilding
 /// <summary>
 /// Helper class for generating the city grid.
 /// </summary>
-internal class CityGenerator 
+internal class CityGrid 
 {
 	/// <summary>
 	/// Minimum amount of space to place a road of the given size.
 	/// </summary>
-	private const int RoadSize1 = 30, RoadSize2 = 100;
+	private const int RoadSize1 = 30, RoadSize2 = 30;
 
-	private readonly Terrain[,] terrain;
-	private readonly int width, height;
-	private readonly List<CityBuilding> buildings;
+	public readonly Terrain[,] terrain;
+	public readonly int width, height;
 	private readonly System.Random random;
 
-	public CityGenerator(int width, int height, int seed)
+	public CityGrid(int width, int height, int seed)
 	{
 		this.terrain = new Terrain[width, height];
 		this.width = width;
@@ -109,7 +112,8 @@ internal class CityGenerator
 
 	public void Generate()
 	{
-		this.Generate(0, 0, this.width, this.height, new ArraySegment<BuildingType>(null, 0, 0));
+		BuildingType[] arr = new BuildingType[0];
+		this.Generate(0, 0, this.width, this.height, new ArraySegment<BuildingType>(arr, 0, 0));
 	}
 
 	/// <summary>
@@ -167,22 +171,37 @@ internal class CityGenerator
 	/// <param name="specials">Special buildings to place in this region.</param>
 	private void Generate(int x, int y, int width, int height, ArraySegment<BuildingType> specials)
 	{
+		// Debug.Log(string.Format("CityGrid.Generate {0} {1} {2} {3}", x, y, width, height));
 		int roadloc, roadsize;
 		ArraySegment<BuildingType> spec1, spec2;
 		if (width > height) {
 			if (this.PlaceRoad(width, out roadloc, out roadsize)) {
+				int roadtiles = roadsize * 2 - 1;
 				this.Split(specials, out spec1, out spec2);
-				this.RectFill(x + roadloc, y, roadsize, height, Terrain.RoadYellowVert);
+				if (roadsize == 1) {
+					this.RectFill(x + roadloc,                y, 1,            height, Terrain.RoadYellowVert);
+				} else {
+					this.RectFill(x + roadloc,                y, roadsize - 1, height, Terrain.RoadWhiteVert);
+					this.RectFill(x + roadloc + roadsize - 1, y, 1,            height, Terrain.RoadYellow2Vert);
+					this.RectFill(x + roadloc + roadsize,     y, roadsize - 1, height, Terrain.RoadWhiteVert);
+				}
 				this.Generate(x, y, roadloc, height, spec1);
-				this.Generate(x + roadloc + roadsize, y, width - roadloc - roadsize, height, spec2);
+				this.Generate(x + roadloc + roadtiles, y, width - roadloc - roadtiles, height, spec2);
 				return;
 			}
 		} else {
 			if (this.PlaceRoad(height, out roadloc, out roadsize)) {
+				int roadtiles = roadsize * 2 - 1;
 				this.Split(specials, out spec1, out spec2);
-				this.RectFill(x, y + roadloc, width, roadsize, Terrain.RoadYellowHoriz);
+				if (roadsize == 1) {
+					this.RectFill(x, y + roadloc,                width, roadsize,     Terrain.RoadYellowHoriz);
+				} else {
+					this.RectFill(x, y + roadloc,                width, roadsize - 1, Terrain.RoadWhiteHoriz);
+					this.RectFill(x, y + roadloc + roadsize - 1, width, roadsize,     Terrain.RoadYellow2Horiz);
+					this.RectFill(x, y + roadloc + roadsize,     width, roadsize - 1, Terrain.RoadWhiteHoriz);
+				}
 				this.Generate(x, y, width, roadloc, spec1);
-				this.Generate(x, y + roadloc + roadsize, width, height - roadloc - roadsize, spec2);
+				this.Generate(x, y + roadloc + roadtiles, width, height - roadloc - roadtiles, spec2);
 				return;
 			}
 		}
@@ -205,23 +224,70 @@ internal class CityGenerator
 	private void RectFill(int x, int y, int width, int height, Terrain tile)
 	{
 		for (int xpos = x; xpos < x + width; xpos++) {
-			for (int ypos = x; ypos < y + height; ypos++) {
+			for (int ypos = y; ypos < y + height; ypos++) {
 				this.terrain[xpos, ypos] = tile;
 			}
 		}
 	}
+
+	/// <summary>
+	/// Load a section of the city terrain into a mesh.
+	/// </summary>
+	public void LoadMesh(Mesh mesh, int x, int y, int width, int height)
+	{
+		Vector3[] vertex = new Vector3[width * height * 4];
+		Vector2[] uv = new Vector2[width * height * 4];
+		int[] index = new int[width * height * 6];
+		for (int xpos = 0; xpos < width; xpos++) {
+			for (int ypos = 0; ypos < height; ypos++) {
+				int n = (xpos * height) + ypos;
+
+				vertex[n * 4 + 0] = new Vector3(xpos + 0, ypos + 0, 0);
+				vertex[n * 4 + 1] = new Vector3(xpos + 1, ypos + 0, 0);
+				vertex[n * 4 + 2] = new Vector3(xpos + 0, ypos + 1, 0);
+				vertex[n * 4 + 3] = new Vector3(xpos + 1, ypos + 1, 0);
+
+				Terrain tile = this.terrain[x + xpos, y + ypos];
+				int tx = (int)tile & 3, ty = ((int)tile >> 2) & 3;
+				uv[n * 4 + 0] = new Vector2(0.25f * (tx + 0), 0.25f * (ty + 0));
+				uv[n * 4 + 1] = new Vector2(0.25f * (tx + 1), 0.25f * (ty + 0));
+				uv[n * 4 + 2] = new Vector2(0.25f * (tx + 0), 0.25f * (ty + 1));
+				uv[n * 4 + 3] = new Vector2(0.25f * (tx + 1), 0.25f * (ty + 1));
+
+				index[n * 6 + 0] = n * 4 + 0;
+				index[n * 6 + 1] = n * 4 + 2;
+				index[n * 6 + 2] = n * 4 + 1;
+				index[n * 6 + 3] = n * 4 + 1;
+				index[n * 6 + 4] = n * 4 + 2;
+				index[n * 6 + 5] = n * 4 + 3;
+			}
+		}
+		mesh.Clear();
+		mesh.vertices = vertex;
+		mesh.uv = uv;
+		mesh.triangles = index;
+	}
 }
 
 public class City : MonoBehaviour {
-	const int Width = 500, Height = 500;
-
-
+	public int Width;
+	public int Height;
 
 	private Terrain[,] terrain;
 	
 	// Use this for initialization
 	void Start () {
+		if (this.Height < 10 || this.Width < 10) {
+			Debug.LogError("City dimensions are too small!");
+			return;
+		}
 
+		int seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+		CityGrid grid = new CityGrid(this.Width, this.Height, seed);
+		grid.Generate();
+		
+		Mesh mesh = GetComponent<MeshFilter>().mesh;
+		grid.LoadMesh(mesh, 0, 0, 64, 64);
 	}
 	
 	// Update is called once per frame
