@@ -96,7 +96,7 @@ internal class CityGrid
 	/// <summary>
 	/// Minimum amount of space to place a road of the given size.
 	/// </summary>
-	private const int RoadSize1 = 30, RoadSize2 = 30;
+	private const int RoadSize1 = 30, RoadSize2 = 100;
 
 	public readonly Terrain[,] terrain;
 	public readonly int width, height;
@@ -230,10 +230,25 @@ internal class CityGrid
 		}
 	}
 
+	public void SpawnGrid(GameObject gridPrefab)
+	{
+		const int maxMesh = 64;
+		int xcount = this.width / maxMesh, ycount = this.height / maxMesh;
+		for (int x = 0; x < xcount; x++) {
+			int x0 = this.width * x / xcount, x1 = this.width * (x + 1) / xcount;
+			for (int y = 0; y < ycount; y++) {
+				int y0 = this.height * y / ycount, y1 = this.width * (y + 1) / ycount;
+				GameObject obj = (GameObject)GameObject.Instantiate(gridPrefab, new Vector3(x0, y0, 0.0f), Quaternion.identity);
+				Mesh mesh = obj.GetComponent<MeshFilter>().mesh;
+				this.LoadMesh(mesh, x0, y0, x1 - x0, y1 - y0);
+			}
+		}
+	}
+
 	/// <summary>
 	/// Load a section of the city terrain into a mesh.
 	/// </summary>
-	public void LoadMesh(Mesh mesh, int x, int y, int width, int height)
+	private void LoadMesh(Mesh mesh, int x, int y, int width, int height)
 	{
 		Vector3[] vertex = new Vector3[width * height * 4];
 		Vector2[] uv = new Vector2[width * height * 4];
@@ -273,6 +288,8 @@ public class City : MonoBehaviour {
 	public int Width;
 	public int Height;
 
+	public GameObject GridObject;
+
 	private Terrain[,] terrain;
 	
 	// Use this for initialization
@@ -285,9 +302,7 @@ public class City : MonoBehaviour {
 		int seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
 		CityGrid grid = new CityGrid(this.Width, this.Height, seed);
 		grid.Generate();
-		
-		Mesh mesh = GetComponent<MeshFilter>().mesh;
-		grid.LoadMesh(mesh, 0, 0, 64, 64);
+		grid.SpawnGrid(this.GridObject);
 	}
 	
 	// Update is called once per frame
