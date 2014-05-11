@@ -81,7 +81,6 @@ internal class RectPacker
 			TileCoordinates loc = list[this.random.Next(list.Count)];
 			int x0 = loc.x, x1 = loc.x + size, y0 = loc.y, y1 = loc.y + size;
 			foreach (Rect r in this.rectAvail) {
-				bool isSplit = true;
 				if (y0 >= r.y1 || y1 <= r.y0 || x0 >= r.x1 || x1 <= r.x0) {
 					this.rectTemp.Add(r);
 					continue;
