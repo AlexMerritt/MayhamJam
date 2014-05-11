@@ -99,6 +99,7 @@ internal class CityGrid
 	private const int RoadSize1 = 30, RoadSize2 = 30;
 
 	public readonly Terrain[,] terrain;
+	public readonly List<Intersection> intersections = new List<Intersection>();
 	public readonly int width, height;
 	private readonly System.Random random;
 
@@ -274,6 +275,7 @@ public class City : MonoBehaviour {
 	public int Height;
 
 	private Terrain[,] terrain;
+	private List<Intersection> intersections;
 	
 	// Use this for initialization
 	void Start () {
@@ -293,5 +295,11 @@ public class City : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
+	}
+	
+	public Intersection RandomIntersection()
+	{
+		int idx = UnityEngine.Random.Range(0, this.intersections.Count);
+		return this.intersections[idx];
 	}
 }
