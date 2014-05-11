@@ -317,12 +317,17 @@ internal class CityGrid
 
 		int bclass = this.BuildingClass(x + width / 2, y + height / 2);
 		if (bclass >= 3) {
-			while (this.GenerateBuilding(BuildingType.Big1)) { }
+			while (this.GenerateBuilding(3)) { }
 		}
 		if (bclass >= 2) {
-			while (this.GenerateBuilding(BuildingType.Medium1)) { }
+			while (this.GenerateBuilding(2)) { }
 		}
-		while (this.GenerateBuilding(BuildingType.Small1)) { }
+		while (this.GenerateBuilding(1)) { }
+	}
+
+	private bool GenerateBuilding(int size)
+	{
+		return this.GenerateBuilding(BuildingTypeUtil.Random(this.random, size));
 	}
 
 	private bool GenerateBuilding(BuildingType type)
@@ -333,17 +338,7 @@ internal class CityGrid
 		this.buildings.Add(new CityBuilding { type = type, x = loc.Value.x, y = loc.Value.y });
 		return true;
 	}
-
-
-	private BuildingType GetBuildingType(int bclass)
-	{
-		switch (bclass) {
-			case 3: return BuildingType.Big1;
-			case 2: return BuildingType.Medium1;
-			default: return BuildingType.Small1;
-		}
-	}
-
+	
 	private int BuildingClass(int x, int y)
 	{
 		int dx = this.width / 2 - x, dy = this.height / 2 - y;
