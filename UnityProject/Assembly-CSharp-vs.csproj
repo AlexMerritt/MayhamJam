@@ -47,7 +47,9 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scrpits\ChaosBarManager.cs" />
+     <Compile Include="Assets\Scrpits\City.cs" />
      <Compile Include="Assets\Scrpits\CityManager.cs" />
+     <Compile Include="Assets\Scrpits\Direction.cs" />
      <Compile Include="Assets\Scrpits\FourDirectionMob.cs" />
      <Compile Include="Assets\Scrpits\LevelSwitch.cs" />
      <Compile Include="Assets\Scrpits\MessageHandler.cs" />

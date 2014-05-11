@@ -262,6 +262,4 @@ public class MessageHandler : MonoBehaviour
             activeMessages.Enqueue(mi);
         }
     }
-
-    void 
 }
