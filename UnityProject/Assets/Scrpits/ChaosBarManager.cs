@@ -15,7 +15,9 @@ public class ChaosBarManager : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
     {
+        var city = GameObject.Find("City").GetComponent<CityManager>();
+
         var bar = gameObject.transform.Find("Bar");
-        bar.localScale = new Vector3(current / max, 1);
+        bar.localScale = new Vector3(city.GetChaosLevelf(), 1);
 	}
 }

@@ -47,11 +47,6 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scrpits\Building.cs" />
-     <Compile Include="Assets\Scrpits\FourDirectionMob.cs" />
-     <Compile Include="Assets\Scrpits\LevelSwitch.cs" />
-     <Compile Include="Assets\Scrpits\Monster.cs" />
-     <Compile Include="Assets\Scrpits\PopUp.cs" />
-     <Compile Include="Assets\Scrpits\TestControls.cs" />
      <Compile Include="Assets\Scrpits\ChaosBarManager.cs" />
      <Compile Include="Assets\Scrpits\City.cs" />
      <Compile Include="Assets\Scrpits\CityManager.cs" />
@@ -59,7 +54,9 @@
      <Compile Include="Assets\Scrpits\FourDirectionMob.cs" />
      <Compile Include="Assets\Scrpits\LevelSwitch.cs" />
      <Compile Include="Assets\Scrpits\MessageHandler.cs" />
+     <Compile Include="Assets\Scrpits\Monster.cs" />
      <Compile Include="Assets\Scrpits\PopUp.cs" />
+     <Compile Include="Assets\Scrpits\TestControls.cs" />
      <Compile Include="Assets\Scrpits\UIManager.cs" />
      <Compile Include="Assets\Scrpits\Walker.cs" />
   </ItemGroup>
