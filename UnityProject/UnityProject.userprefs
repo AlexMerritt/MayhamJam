@@ -1,18 +1,8 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scrpits/City.cs">
-    <Files>
-      <File FileName="Assets/Scrpits/City.cs" Line="289" Column="1" />
-      <File FileName="Assets/Scrpits/Direction.cs" Line="11" Column="48" />
-      <File FileName="Assets/Scrpits/LevelSwitch.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scrpits/CameraController.cs" Line="13" Column="49" />
-      <File FileName="Assets/Scrpits/FourDirectionMob.cs" Line="98" Column="16" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/depp/Projects/mayhem2014/UnityProject/Assets/Scrpits/City.cs" line="271" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

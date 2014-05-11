@@ -68,20 +68,6 @@ public enum Terrain {
 	Intersection, RoadYellow2Vert, RoadYellow2Horiz, RoadYellowHoriz
 }
 
-public enum BuildingType
-{
-	GenericSmall, GenericMedium, GenericLarge,
-	PoliceStation, CityHall,
-	LandmarkEiffel, LandmarkBigBen, LandmarkSydney,
-	ResearchLab,
-	ElementarySchool,
-	PowerPlant,
-	FireStation,
-	Hospital,
-	SewageTreatment,
-	OldSteelMill
-}
-
 /// <summary>
 /// A building in the generated city grid.
 /// </summary>
@@ -90,17 +76,22 @@ public class CityBuilding
 	public BuildingType type;
 	public int x;
 	public int y;
-	public int width;
-	public int height;
 }
-
-
 
 /// <summary>
 /// Helper class for generating the city grid.
 /// </summary>
 internal class CityGrid 
 {
+	private struct Rect
+	{
+		Rect(int x, int y, int width, int height)
+		{
+			this.x = x; this.y = y; this.width = width; this.height = height;
+		}
+		public int x, y, width, height;
+	}
+
 	private class StreetEnd
 	{
 		/// <summary>
@@ -139,11 +130,12 @@ internal class CityGrid
 	/// <summary>
 	/// Minimum amount of space to place a road of the given size.
 	/// </summary>
-	private const int RoadSize1 = 30, RoadSize2 = 100;
+	public int RoadSize1 = 30, RoadSize2 = 100;
 
 	public readonly Terrain[,] terrain;
 	public readonly int width, height;
 	private readonly System.Random random;
+	private readonly List<CityBuilding> buildings = new List<CityBuilding>();
 
 	public CityGrid(int width, int height, int seed)
 	{
@@ -274,9 +266,7 @@ internal class CityGrid
 		StreetEnd.Pair(roadsize, absloc, startDir, out first, out last);
 		Intersection intersection = null;
 		int lastLoc = 0;
-		Debug.Log("Starting");
 		foreach (StreetEnd end in intersectionEnds.OrderBy(end => end.location)) {
-			Debug.Log(string.Format("Intersection at {0} {1}", end.location, end.direction));
 			if (intersection == null || lastLoc != end.location) {
 				if (isHorizontal)
 					intersection = new Intersection(absloc, end.location);
@@ -315,12 +305,18 @@ internal class CityGrid
 	/// <param name="specials">Special buildings to place in this region.</param>
 	private List<StreetEnd> Generate(int x, int y, int width, int height, ArraySegment<BuildingType> specials)
 	{
-		Debug.Log("HERE");
 		// Debug.Log(string.Format("CityGrid.Generate {0} {1} {2} {3}", x, y, width, height));
 		List<StreetEnd> result = this.GenerateRoad(x, y, width, height, specials);
-		if (result != null)
+		if (result != null) {
 			return result;
+		} else {
+			this.GenerateBlock(x, y, width, height, specials);
+			return null;
+		}
+	}
 
+	private void GenerateBlock(int x, int y, int width, int height, ArraySegment<BuildingType> specials)
+	{
 		// Fill in sidewalk for this region.
 
 		this.terrain[x, y] = Terrain.Sidewalk11;
@@ -335,7 +331,35 @@ internal class CityGrid
 		this.RectFill(x + width - 1, y + 1, 1, height - 2, Terrain.Sidewalk32);
 		this.terrain[x + width - 1, y + height - 1] = Terrain.Sidewalk33;
 
-		return null;
+		int bclass = this.BuildingClass(x, y, width, height);
+		this.buildings.Add(new CityBuilding {
+			type = this.GetBuildingType(bclass),
+			x = x + 1,
+			y = y + 1
+		});
+	}
+
+	private BuildingType GetBuildingType(int bclass)
+	{
+		switch (bclass) {
+			case 3: return BuildingType.Big1;
+			case 2: return BuildingType.Medium1;
+			default: return BuildingType.Small1;
+		}
+	}
+
+	private int BuildingClass(int x, int y, int width, int height)
+	{
+		int dx = this.width / 2 - (x + width / 2), dy = this.height / 2 - (y + height / 2);
+		float dist = 2.0f * (float)Math.Sqrt((float)(dx * dx) + (float)(dy * dy)) / (float)Math.Max(this.width, this.height);
+		float variance = 2.0f * (float)this.random.NextDouble() - 1.0f;
+		float category = dist * 3 + variance * 0.2f;
+		if (category < 1.0f)
+			return 3;
+		else if (category < 2.0f)
+			return 2;
+		else
+			return 1;
 	}
 
 	private void RectFill(int x, int y, int width, int height, Terrain tile)
@@ -399,16 +423,24 @@ internal class CityGrid
 		mesh.uv = uv;
 		mesh.triangles = index;
 	}
+
+	public void SpawnBuildings(BuildingSpawner buildingPrefab)
+	{
+		foreach (CityBuilding b in this.buildings) {
+			// Debug.Log(string.Format("Building: ({0}, {1}) {2}", b.x, b.y, b.type));
+			buildingPrefab.SpawnBuilding(b.x, b.y, b.type);
+		}
+	}
 }
 
 public class City : MonoBehaviour {
-	public int Width;
-	public int Height;
+	public int Width, Height, BlockSize1, BlockSize2;
 
 	public GameObject GridObject;
+	public BuildingSpawner BuildingPrefab;
 
 	private Terrain[,] terrain;
-	
+
 	// Use this for initialization
 	void Start () {
 		if (this.Height < 10 || this.Width < 10) {
@@ -418,8 +450,11 @@ public class City : MonoBehaviour {
 
 		int seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
 		CityGrid grid = new CityGrid(this.Width, this.Height, seed);
+		grid.RoadSize1 = Math.Max(this.BlockSize1, 7);
+		grid.RoadSize2 = Math.Max(this.BlockSize2, 9);
 		grid.Generate();
 		grid.SpawnGrid(this.GridObject);
+		grid.SpawnBuildings(this.BuildingPrefab);
 	}
 	
 	// Update is called once per frame
