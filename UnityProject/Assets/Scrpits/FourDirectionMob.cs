@@ -1,46 +1,41 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class FourDirectionMob : MonoBehaviour {
 	public enum Direction {
 		North,
-		East,
+		West,
 		South,
-		West
+		East
 	}
 
 	public Direction curDirection;
 	
-	public bool running;
 	public float walkSpeed;
 	public float runSpeed;
+	public bool moving;
+	
+	public Animator anim;
 
 	// Use this for initialization
-	void Start () {
-		//TODO: set initial facing
+	public void Start () {
+		
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		//TODO: remove this control
-		if (Input.GetKey (KeyCode.LeftShift)) {
-			running = true;
-		} else {
-			running = false;
-		}
+	public void Update () {
+		if (anim.GetBool("Moving") != moving)
+			anim.SetBool("Moving", moving);
 		
-		if (Input.GetKey (KeyCode.W)) {
-			Move (Direction.North);
-		}
-		if (Input.GetKey (KeyCode.D)) {
-			Move (Direction.East);
-		}
-		if (Input.GetKey (KeyCode.S)) {
-			Move (Direction.South);
-		}
-		if (Input.GetKey (KeyCode.A)) {
-			Move (Direction.West);
-		}
+		//reset movement variable
+		moving = false;
+	}
+	
+	public bool RandomizeFacing () {
+		Array values = Enum.GetValues(typeof(Direction));
+		Direction randomDirection = (Direction)values.GetValue(UnityEngine.Random.Range(0, values.Length));
+		return SetFacing(randomDirection);
 	}
 
 	// change the direction this mob is facing
@@ -48,10 +43,13 @@ public class FourDirectionMob : MonoBehaviour {
 	public bool SetFacing (Direction newDirection) {
 		if (curDirection != newDirection) {
 			curDirection = newDirection;
-
+			
+			if (anim.GetInteger("MoveDirection") != (int)newDirection)
+				anim.SetInteger("MoveDirection", (int)newDirection);
+			
 			switch (newDirection) {
 			case Direction.North:
-				gameObject.renderer.material.color = Color.red;
+				gameObject.renderer.material.color = Color.white;
 				break;
 			case Direction.East:
 				gameObject.renderer.material.color = Color.green;
@@ -70,11 +68,11 @@ public class FourDirectionMob : MonoBehaviour {
 		return false;
 	}
 
-	public bool Move (Direction moveDirection) {
-		if (true) { //TODO: check collision in desired direction
-			this.SetFacing (moveDirection);
-
-			float moveSpeed = running ? runSpeed : walkSpeed;
+	public bool Move (Direction moveDirection, float moveSpeed) {
+		if (true) { //TODO: check collision in desired direction?
+			SetFacing (moveDirection);
+			
+			moving = true;
 
 			//translate object
 			switch (moveDirection) {
