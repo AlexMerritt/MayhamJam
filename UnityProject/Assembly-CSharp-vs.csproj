@@ -55,6 +55,7 @@
      <Compile Include="Assets\Scrpits\CityManager.cs" />
      <Compile Include="Assets\Scrpits\DeadWalker.cs" />
      <Compile Include="Assets\Scrpits\Direction.cs" />
+     <Compile Include="Assets\Scrpits\Driver.cs" />
      <Compile Include="Assets\Scrpits\FourDirectionMob.cs" />
      <Compile Include="Assets\Scrpits\LevelSwitch.cs" />
      <Compile Include="Assets\Scrpits\MessageHandler.cs" />
