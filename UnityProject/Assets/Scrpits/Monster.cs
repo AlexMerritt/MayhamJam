@@ -67,6 +67,15 @@ public class Monster : FourDirectionMob {
 			stompSize.x,
 			stompSize.y);
 
+		Collider2D[] hits = Physics2D.OverlapAreaAll(
+			new Vector2(stompBox.xMin, stompBox.yMax),
+			new Vector2(stompBox.xMax, stompBox.yMax));
+		foreach (Collider2D hit in hits) {
+			Building bldg = hit.GetComponent<Building>();
+			if (bldg != null)
+				bldg.Damage();
+		}
+
 		//crush puny humans
 		GameObject[] humans = GameObject.FindGameObjectsWithTag("human");
 		foreach (GameObject human in humans) {
