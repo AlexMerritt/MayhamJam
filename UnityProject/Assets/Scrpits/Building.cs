@@ -53,7 +53,8 @@ public static class BuildingTypeUtil
 public class Building : MonoBehaviour {
 	private Sprite current, damaged, rubble;
 	private float health, damagerate;
-	public void SetBuilding(Sprite normal, Sprite damaged, Sprite rubble, int size, float health)
+	private float chaos;
+	public void SetBuilding(Sprite normal, Sprite damaged, Sprite rubble, int size, float health, float chaos)
 	{
 		this.current = normal;
 		this.damaged = damaged;
@@ -64,6 +65,7 @@ public class Building : MonoBehaviour {
 		collider.size = new Vector2(size, size);
 		collider.center = new Vector2(size * 0.5f, size * 0.5f);
 		this.damagerate = 1.0f / health;
+		this.chaos = chaos;
 	}
 
 	void Start() {
@@ -78,6 +80,11 @@ public class Building : MonoBehaviour {
 		Sprite sp;
 		this.health -= this.damagerate * Time.deltaTime;
 		if (this.health < 0.0f) {
+			CityManager mgr = GameObject.Find("City").GetComponent<CityManager>();
+			if (mgr != null)
+				mgr.AddChaos(this.chaos);
+			else
+				Debug.LogError("Could not find city manager to add chaos");
 			sp = this.rubble;
 			BoxCollider2D collider = this.GetComponent<BoxCollider2D>();
 			Destroy(collider);
