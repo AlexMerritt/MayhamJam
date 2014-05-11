@@ -3,6 +3,7 @@ using UnityEngine;
 public enum BuildingType
 {
 	Small1,
+	Small2,
 	Medium1,
 	Big1,
 	Big2,
@@ -24,6 +25,7 @@ public static class BuildingTypeUtil
 	{
 		switch (type) {
 			case BuildingType.Small1:
+			case BuildingType.Small2:
 				return 2;
 			case BuildingType.Medium1:
 				return 3;
@@ -36,7 +38,7 @@ public static class BuildingTypeUtil
 	{
 		switch (size) {
 			case 1:
-				return (BuildingType)random.Next((int)BuildingType.Small1, (int)BuildingType.Small1 + 1);
+				return (BuildingType)random.Next((int)BuildingType.Small1, (int)BuildingType.Small2 + 1);
 			case 2:
 				return (BuildingType)random.Next((int)BuildingType.Medium1, (int)BuildingType.Medium1 + 1);
 			case 3:
