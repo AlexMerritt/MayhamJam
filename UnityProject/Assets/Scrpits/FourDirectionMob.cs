@@ -25,8 +25,7 @@ public class FourDirectionMob : MonoBehaviour {
 	
 	// Update is called once per frame
 	public void Update () {
-		if (anim.GetBool("Moving") != moving)
-			anim.SetBool("Moving", moving);
+		anim.SetBool("Moving", moving);
 		
 		//reset movement variable
 		moving = false;
@@ -44,23 +43,22 @@ public class FourDirectionMob : MonoBehaviour {
 		if (curDirection != newDirection) {
 			curDirection = newDirection;
 			
-			if (anim.GetInteger("MoveDirection") != (int)newDirection)
-				anim.SetInteger("MoveDirection", (int)newDirection);
+			anim.SetInteger("MoveDirection", (int)newDirection);
 			
-			switch (newDirection) {
-			case Direction.North:
-				gameObject.renderer.material.color = Color.white;
-				break;
-			case Direction.East:
-				gameObject.renderer.material.color = Color.green;
-				break;
-			case Direction.South:
-				gameObject.renderer.material.color = Color.blue;
-				break;
-			case Direction.West:
-				gameObject.renderer.material.color = Color.yellow;
-				break;
-			}
+//			switch (newDirection) {
+//			case Direction.North:
+//				gameObject.renderer.material.color = Color.white;
+//				break;
+//			case Direction.East:
+//				gameObject.renderer.material.color = Color.green;
+//				break;
+//			case Direction.South:
+//				gameObject.renderer.material.color = Color.blue;
+//				break;
+//			case Direction.West:
+//				gameObject.renderer.material.color = Color.yellow;
+//				break;
+//			}
 			
 			return true;
 		}
@@ -94,5 +92,25 @@ public class FourDirectionMob : MonoBehaviour {
 		}
 
 		return false;
+	}
+	
+	public Direction VecToDirection(Vector3 dir) {
+		if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y)) {
+			return dir.x > 0 ? Direction.East : Direction.West;
+		} else {
+			return dir.y > 0 ? Direction.North : Direction.South;
+		}
+	}
+	
+	public Direction TurnRight(Direction dir) {
+		return (Direction)(((int)dir + 3) % 4);
+	}
+	
+	public Direction TurnLeft(Direction dir) {
+		return (Direction)(((int)dir + 1) % 4);
+	}
+	
+	public Direction TurnAround(Direction dir) {
+		return (Direction)(((int)dir + 2) % 4);
 	}
 }

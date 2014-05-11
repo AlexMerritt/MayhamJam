@@ -9,16 +9,25 @@ public class Monster : FourDirectionMob {
 	public float curMomentum;
 	float maxMomentum = 50f;
 	float slapStrength = 2.0f;
-	float enticeStrength = 3.0f;
+	float enticeStrength = 8.0f;
+	
+	float enticeTurnThreshold = 20f;
 	
 	float wanderThreshold = 5.0f;
 	float wanderCooldownTime = 1.5f;
 	float wanderCooldown;
 	
-	public GameObject prefabHuman;
+	float baseDecay = 10.0f;
+	
+	public GameObject deadHuman;
+	
+	public Rect stompBox;
 
 	// Use this for initialization
 	new public void Start () {
+		stompBox = new Rect(0, 0, 0.3f, 0.3f);
+		stompBox.center = new Vector2(transform.position.x, transform.position.y - 0.3f);
+		
 		RandomizeFacing();
 		wanderCooldown = wanderCooldownTime;
 	}
@@ -38,17 +47,7 @@ public class Monster : FourDirectionMob {
 			angle = (angle + 315) % 360;
 			FourDirectionMob.Direction enticeDirection = (FourDirectionMob.Direction)Mathf.Floor(angle / 90);
 			
-			//Entice(enticeDirection);
-			
-			var worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			worldPos.z = 5;
-		}
-		
-		if (Input.GetMouseButtonDown(1)) {
-			var worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			worldPos.z = 5;
-			
-			GameObject.Instantiate(prefabHuman, worldPos, Quaternion.identity);
+			Entice(enticeDirection);
 		}
 		
 		//TODO: check for things to respond to
@@ -60,12 +59,30 @@ public class Monster : FourDirectionMob {
 		}
 		
 		//if nothing interesting, just move forward
-		float moveSpeed = runSpeed * (curMomentum / maxMomentum);
+		float moveSpeed = Mathf.Max(walkSpeed, runSpeed * (curMomentum / maxMomentum));
 		Move (curDirection, moveSpeed);
+		
+		//update stomp box
+		stompBox.center = new Vector2(transform.position.x, transform.position.y - 0.3f);
+		
+		//crush puny humans
+		GameObject[] humans = GameObject.FindGameObjectsWithTag("human");
+		foreach (GameObject human in humans) {
+			if (stompBox.Contains(human.transform.position)) {
+				ParticleHelper.Instance.Splat(human.transform.position);
+				human.GetComponent<Walker>().Die();
+			}
+		}
+		
+		//lose momentum over time
+		curMomentum -= baseDecay * Time.deltaTime;
+		if (curMomentum < 0) curMomentum = 0;
 		
 		//decrement timer(s)
 		if (wanderCooldown > 0)
 			wanderCooldown -= Time.deltaTime;
+			
+		
 	}
 	
 	//punish the monster, slowing it down and hurting its feelings
@@ -80,8 +97,12 @@ public class Monster : FourDirectionMob {
 		//TODO: play entice animation
 		if (dir == curDirection) {
 			curMomentum = Mathf.Min(curMomentum + enticeStrength, maxMomentum);
-		} else if (curMomentum < wanderThreshold) {
-			SetFacing(dir);
+		} else {
+			curMomentum = Mathf.Max(curMomentum - enticeStrength, 0);
+			
+			if (curMomentum < enticeTurnThreshold && dir != TurnAround(curDirection)) {
+				SetFacing(dir);
+			}
 		}
 	}
 }
