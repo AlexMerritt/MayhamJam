@@ -27,6 +27,7 @@ public class PopUp : MonoBehaviour
 
         header = message.header;
         text = message.text;
+        image = message.sprite;
 
         UpdateHeader();
 

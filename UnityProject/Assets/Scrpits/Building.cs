@@ -1,28 +1,59 @@
-﻿using UnityEngine;
-using System.Collections;
+using UnityEngine;
+
+public enum BuildingType
+{
+	Small1,
+	Small2,
+	Medium1,
+	Big1,
+	Big2,
+
+	PoliceStation, CityHall,
+	LandmarkEiffel, LandmarkBigBen, LandmarkSydney,
+	ResearchLab,
+	ElementarySchool,
+	PowerPlant,
+	FireStation,
+	Hospital,
+	SewageTreatment,
+	OldSteelMill
+}
+
+public static class BuildingTypeUtil
+{
+	public static int FootprintSize(this BuildingType type)
+	{
+		switch (type) {
+			case BuildingType.Small1:
+			case BuildingType.Small2:
+				return 2;
+			case BuildingType.Medium1:
+				return 3;
+			default:
+				return 5;
+		}
+	}
+
+	public static BuildingType Random(System.Random random, int size)
+	{
+		switch (size) {
+			case 1:
+				return (BuildingType)random.Next((int)BuildingType.Small1, (int)BuildingType.Small2 + 1);
+			case 2:
+				return (BuildingType)random.Next((int)BuildingType.Medium1, (int)BuildingType.Medium1 + 1);
+			case 3:
+				return (BuildingType)random.Next((int)BuildingType.Big1, (int)BuildingType.Big2 + 1);
+			default:
+				Debug.LogError("Invalid building size");
+				return (BuildingType)0;
+		}
+	}
+}
 
 public class Building : MonoBehaviour {
-	public enum BuildingSize {
-		Small,
-		Medium,
-		Large
+	void Start() {
 	}
 
-	//position of the lower left corner
-	public int tileX, tileY;
-	
-	public float curHealth;
-	public float maxHealth;
-	
-	
-
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+	void Update() {
 	}
 }

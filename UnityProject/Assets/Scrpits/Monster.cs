@@ -18,16 +18,14 @@ public class Monster : FourDirectionMob {
 	float wanderCooldown;
 	
 	float baseDecay = 10.0f;
-	
+
 	public GameObject deadHuman;
-	
-	public Rect stompBox;
+
+	public Vector2 stompSize;
+	public float stompPos;
 
 	// Use this for initialization
 	new public void Start () {
-		stompBox = new Rect(0, 0, 0.3f, 0.3f);
-		stompBox.center = new Vector2(transform.position.x, transform.position.y - 0.3f);
-		
 		RandomizeFacing();
 		wanderCooldown = wanderCooldownTime;
 	}
@@ -63,8 +61,12 @@ public class Monster : FourDirectionMob {
 		Move (curDirection, moveSpeed);
 		
 		//update stomp box
-		stompBox.center = new Vector2(transform.position.x, transform.position.y - 0.3f);
-		
+		Rect stompBox = new Rect(
+			transform.position.x-stompSize.x*0.5f,
+			transform.position.y-stompSize.y*0.5f + stompPos,
+			stompSize.x,
+			stompSize.y);
+
 		//crush puny humans
 		GameObject[] humans = GameObject.FindGameObjectsWithTag("human");
 		foreach (GameObject human in humans) {
