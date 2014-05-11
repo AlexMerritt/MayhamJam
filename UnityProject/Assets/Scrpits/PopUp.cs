@@ -16,7 +16,7 @@ public class PopUp : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        UpdatePopUp();
+        //UpdatePopUp();
     }
 
     public void UpdatePopUp()
