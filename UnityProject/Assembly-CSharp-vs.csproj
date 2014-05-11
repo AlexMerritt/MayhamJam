@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\BuildingSpawner.cs" />
+     <Compile Include="Assets\RectPacker.cs" />
      <Compile Include="Assets\Scrpits\Building.cs" />
      <Compile Include="Assets\Scrpits\CameraController.cs" />
      <Compile Include="Assets\Scrpits\City.cs" />
@@ -55,6 +56,7 @@
      <Compile Include="Assets\Scrpits\LevelSwitch.cs" />
      <Compile Include="Assets\Scrpits\PopUp.cs" />
      <Compile Include="Assets\Scrpits\Walker.cs" />
+     <Compile Include="Assets\TileCoordinates.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

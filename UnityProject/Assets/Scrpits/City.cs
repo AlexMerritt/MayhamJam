@@ -4,20 +4,6 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
-public struct TileCoordinates {
-	public TileCoordinates(int x, int y) { this.x = x; this.y = y; }
-
-	/// <summary>
-	/// Y position in tile coordinates.
-	/// </summary>
-	public readonly int x;
-
-	/// <summary>
-	/// Y position in tile coordinates.
-	/// </summary>
-	public readonly int y;
-}
-
 public class Intersection
 {
 	private Intersection left, right, up, down;
@@ -83,15 +69,6 @@ public class CityBuilding
 /// </summary>
 internal class CityGrid 
 {
-	private struct Rect
-	{
-		Rect(int x, int y, int width, int height)
-		{
-			this.x = x; this.y = y; this.width = width; this.height = height;
-		}
-		public int x, y, width, height;
-	}
-
 	private class StreetEnd
 	{
 		/// <summary>
@@ -136,6 +113,7 @@ internal class CityGrid
 	public readonly int width, height;
 	private readonly System.Random random;
 	private readonly List<CityBuilding> buildings = new List<CityBuilding>();
+	private readonly RectPacker rectPacker;
 
 	public CityGrid(int width, int height, int seed)
 	{
@@ -143,6 +121,7 @@ internal class CityGrid
 		this.width = width;
 		this.height = height;
 		this.random = new System.Random(seed);
+		this.rectPacker = new RectPacker(this.random);
 	}
 
 	public void Generate()
@@ -331,13 +310,30 @@ internal class CityGrid
 		this.RectFill(x + width - 1, y + 1, 1, height - 2, Terrain.Sidewalk32);
 		this.terrain[x + width - 1, y + height - 1] = Terrain.Sidewalk33;
 
-		int bclass = this.BuildingClass(x, y, width, height);
-		this.buildings.Add(new CityBuilding {
-			type = this.GetBuildingType(bclass),
-			x = x + 1,
-			y = y + 1
-		});
+		this.rectPacker.Clear(x + 1, y + 1, width - 2, height - 2);
+
+		for (var i = 0; i < specials.Count; i++)
+			this.GenerateBuilding(specials.Array[specials.Offset + i]);
+
+		int bclass = this.BuildingClass(x + width / 2, y + height / 2);
+		if (bclass >= 3) {
+			while (this.GenerateBuilding(BuildingType.Big1)) { }
+		}
+		if (bclass >= 2) {
+			while (this.GenerateBuilding(BuildingType.Medium1)) { }
+		}
+		while (this.GenerateBuilding(BuildingType.Small1)) { }
 	}
+
+	private bool GenerateBuilding(BuildingType type)
+	{
+		TileCoordinates? loc = this.rectPacker.PlaceRect(type.FootprintSize());
+		if (!loc.HasValue)
+			return false;
+		this.buildings.Add(new CityBuilding { type = type, x = loc.Value.x, y = loc.Value.y });
+		return true;
+	}
+
 
 	private BuildingType GetBuildingType(int bclass)
 	{
@@ -348,9 +344,9 @@ internal class CityGrid
 		}
 	}
 
-	private int BuildingClass(int x, int y, int width, int height)
+	private int BuildingClass(int x, int y)
 	{
-		int dx = this.width / 2 - (x + width / 2), dy = this.height / 2 - (y + height / 2);
+		int dx = this.width / 2 - x, dy = this.height / 2 - y;
 		float dist = 2.0f * (float)Math.Sqrt((float)(dx * dx) + (float)(dy * dy)) / (float)Math.Max(this.width, this.height);
 		float variance = 2.0f * (float)this.random.NextDouble() - 1.0f;
 		float category = dist * 3 + variance * 0.2f;
