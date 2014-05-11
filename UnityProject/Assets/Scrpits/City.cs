@@ -40,9 +40,9 @@ public class Intersection
 		get { return new Vector2(this.loc.x + 0.5f, this.loc.y + 0.5f); }
 	}
 
-	public bool DoesContain(Vector2 point)
+	public bool Contains(Vector2 point)
 	{
-		return false;
+		return (Mathf.Abs(Coordinates.x - point.x) <= 0.5 && Mathf.Abs(Coordinates.y - point.y) <= 0.5);
 	}
 }
 
@@ -252,6 +252,7 @@ internal class CityGrid
 					intersection = new Intersection(absloc, end.location);
 				else
 					intersection = new Intersection(end.location, absloc);
+				this.intersections.Add(intersection);
 				lastLoc = end.location;
 				StreetEnd first2, last2;
 				StreetEnd.Pair(roadsize, absloc, startDir, out first2, out last2);
@@ -432,12 +433,8 @@ public class City : MonoBehaviour {
 	public BuildingSpawner BuildingPrefab;
 
 	private Terrain[,] terrain;
-<<<<<<< HEAD
 	private List<Intersection> intersections;
 	
-=======
-
->>>>>>> origin/master
 	// Use this for initialization
 	void Start () {
 		if (this.Height < 10 || this.Width < 10) {
@@ -452,6 +449,7 @@ public class City : MonoBehaviour {
 		grid.Generate();
 		grid.SpawnGrid(this.GridObject);
 		grid.SpawnBuildings(this.BuildingPrefab);
+		this.intersections = grid.intersections;
 	}
 	
 	// Update is called once per frame

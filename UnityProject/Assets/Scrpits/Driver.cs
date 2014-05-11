@@ -10,6 +10,9 @@ public class Driver : FourDirectionMob {
 	float aggroRange = 4.0f;
 	float attackRange = 2.0f;
 	
+	Intersection nextIntersection;
+	Intersection lastIntersection;
+	
 	public float attackTime;
 	public float attackDamage;
 	float attackCooldown = 0;
@@ -25,8 +28,9 @@ public class Driver : FourDirectionMob {
 		//store the monster for later use
 		monster = GameObject.FindWithTag("monster");
 		
-		//spice it up
-		RandomizeFacing();
+		lastIntersection = city.RandomIntersection();
+		transform.position = lastIntersection.Coordinates;
+		nextIntersection = lastIntersection;
 	}
 	
 	// Update is called once per frame
@@ -34,21 +38,11 @@ public class Driver : FourDirectionMob {
 		float distToMonster = Vector2.Distance(transform.position, monster.transform.position);
 		if (distToMonster <= attackRange) {
 			//ATTACK
-		} else if (InIntersection()) {
-			if (distToMonster <= aggroRange) {
-				//TODO: turn toward monster
-				RandomizeFacing();
-			} else {
-				RandomizeFacing();
-			}
+		} else if (nextIntersection.Contains(transform.position)) {
+			PickIntersection();
 		} else {
 			float moveSpeed = distToMonster <= aggroRange ? runSpeed : walkSpeed;
 			Move(curDirection, moveSpeed);
-		}
-		
-		testIntersectionTimer -= Time.deltaTime;
-		if (testIntersectionTimer <= 0) {
-			
 		}
 		
 		base.Update();
@@ -77,5 +71,34 @@ public class Driver : FourDirectionMob {
 	public void Die() {
 		GameObject.Instantiate(corpseObject, transform.position, Quaternion.identity);
 		Destroy(gameObject);
+	}
+	
+	public void PickIntersection() {
+		float distToMonster = Vector2.Distance(transform.position, monster.transform.position);
+		if (distToMonster <= aggroRange) {
+			float bestDist = 1000;
+			Intersection bestInter = lastIntersection;
+			for (int i=0; i<4; i++) {
+				Intersection inter = nextIntersection.GetNeighbor((global::Direction)i);
+				if (inter != null) {
+					float thisDist = Vector2.Distance(nextIntersection.Coordinates, monster.transform.position);
+					if (thisDist < bestDist) {
+						bestDist = thisDist;
+						bestInter = inter;
+					}
+				}
+			}
+		
+			lastIntersection = nextIntersection;
+			nextIntersection = bestInter;
+		} else {
+			lastIntersection = nextIntersection;
+			
+			while (nextIntersection.GetNeighbor((global::Direction)curDirection) == null) {
+				RandomizeFacing();
+			}
+			
+			nextIntersection = nextIntersection.GetNeighbor((global::Direction)curDirection);
+		}
 	}
 }
