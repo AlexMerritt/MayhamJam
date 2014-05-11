@@ -16,35 +16,30 @@ public class Walker : FourDirectionMob {
 	
 	float wanderMoveChance = 0.4f;
 	
-	//TODO: return whether it actually has a target
-	bool HasTarget() {
-		return false;
-	}
+	public Vector2 fleePosition;
 
 	// Use this for initialization
-	void Start () {
+	new public void Start () {
 		PickState();
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	new public void Update () {
 		bool didUpdate = UpdateState(curState);
 		
 		if (!didUpdate) {
 			PickState();
 		}
+		
+		base.Update();
 	}
 	
 	// automatically pick a state to enter
 	void PickState() {
-		if (HasTarget()) {
-			EnterState(WalkerState.Flee);
+		if (UnityEngine.Random.value >= wanderMoveChance) {
+			EnterState(WalkerState.Stand);
 		} else {
-			if (UnityEngine.Random.value >= wanderMoveChance) {
-				EnterState(WalkerState.Stand);
-			} else {
-				EnterState(WalkerState.Walk);
-			}
+			EnterState(WalkerState.Walk);
 		}
 	}
 
@@ -64,13 +59,10 @@ public class Walker : FourDirectionMob {
 			//do nothing.
 			break;
 		case WalkerState.Walk:
-			Array values = Enum.GetValues(typeof(Direction));
-			Direction randomDirection = (Direction)values.GetValue(UnityEngine.Random.Range(0, values.Length));
-			SetFacing(randomDirection);
+			RandomizeFacing();
 			break;
 		case WalkerState.Flee:
 			//TODO: pick direction AWAY from target
-			running = true;
 			break;
 		}
 		
@@ -90,10 +82,10 @@ public class Walker : FourDirectionMob {
 			//do nothing.
 			break;
 		case WalkerState.Walk:
-			Move(curDirection);
+			Move(curDirection, walkSpeed);
 			break;
 		case WalkerState.Flee:
-			Move(curDirection);
+			Move(curDirection, runSpeed);
 			break;
 		}
 		
@@ -110,7 +102,6 @@ public class Walker : FourDirectionMob {
 			//do nothing.
 			break;
 		case WalkerState.Flee:
-			running = false;
 			break;
 		}
 	}
