@@ -9,7 +9,9 @@ public class Monster : FourDirectionMob {
 	public float curMomentum;
 	float maxMomentum = 50f;
 	float slapStrength = 2.0f;
-	float enticeStrength = 3.0f;
+	float enticeStrength = 5.0f;
+	
+	float enticeTurnThreshold = 20f;
 	
 	float wanderThreshold = 5.0f;
 	float wanderCooldownTime = 1.5f;
@@ -38,10 +40,7 @@ public class Monster : FourDirectionMob {
 			angle = (angle + 315) % 360;
 			FourDirectionMob.Direction enticeDirection = (FourDirectionMob.Direction)Mathf.Floor(angle / 90);
 			
-			//Entice(enticeDirection);
-			
-			var worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			worldPos.z = 5;
+			Entice(enticeDirection);
 		}
 		
 		if (Input.GetMouseButtonDown(1)) {
@@ -60,7 +59,7 @@ public class Monster : FourDirectionMob {
 		}
 		
 		//if nothing interesting, just move forward
-		float moveSpeed = runSpeed * (curMomentum / maxMomentum);
+		float moveSpeed = Mathf.Max(walkSpeed, runSpeed * (curMomentum / maxMomentum));
 		Move (curDirection, moveSpeed);
 		
 		//decrement timer(s)
@@ -80,8 +79,12 @@ public class Monster : FourDirectionMob {
 		//TODO: play entice animation
 		if (dir == curDirection) {
 			curMomentum = Mathf.Min(curMomentum + enticeStrength, maxMomentum);
-		} else if (curMomentum < wanderThreshold) {
-			SetFacing(dir);
+		} else {
+			curMomentum = Mathf.Max(curMomentum - enticeStrength, 0);
+			
+			if (curMomentum < enticeTurnThreshold && dir != TurnAround(curDirection)) {
+				SetFacing(dir);
+			}
 		}
 	}
 }

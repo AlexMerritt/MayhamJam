@@ -11,15 +11,25 @@ public class Walker : FourDirectionMob {
 
 	WalkerState curState;
 	float stateTimer;
-	float stateTimeMin = 0.5f;
-	float stateTimeMax = 1.5f;
+	float stateTimeMin = 0.3f;
+	float stateTimeMax = 1.0f;
 	
 	float wanderMoveChance = 0.4f;
 	
-	public Vector2 fleePosition;
+	float fleeDetectRange = 1.5f;
+	
+	GameObject monster;
 
 	// Use this for initialization
 	new public void Start () {
+		//give this person a bit of color
+		gameObject.renderer.material.color = new Color(
+			UnityEngine.Random.Range(0.9f, 1.0f),
+			UnityEngine.Random.Range(0.8f, 1.0f),
+			UnityEngine.Random.Range(0.6f, 1.0f));
+			
+		monster = GameObject.FindWithTag("monster");
+	
 		PickState();
 	}
 	
@@ -36,7 +46,9 @@ public class Walker : FourDirectionMob {
 	
 	// automatically pick a state to enter
 	void PickState() {
-		if (UnityEngine.Random.value >= wanderMoveChance) {
+		if (monster != null && Vector2.Distance(transform.position, monster.transform.position) <= fleeDetectRange) {
+			EnterState(WalkerState.Flee);
+		} else if (UnityEngine.Random.value >= wanderMoveChance) {
 			EnterState(WalkerState.Stand);
 		} else {
 			EnterState(WalkerState.Walk);
@@ -62,7 +74,19 @@ public class Walker : FourDirectionMob {
 			RandomizeFacing();
 			break;
 		case WalkerState.Flee:
-			//TODO: pick direction AWAY from target
+			Vector3 relPos = transform.position - monster.transform.position;
+			
+			Direction newDirection = VecToDirection(relPos);
+			
+			float turnChance = UnityEngine.Random.value;
+			if (turnChance <= 0.1) {
+				newDirection = TurnRight(newDirection);
+			} else if (turnChance <= 0.2) {
+				newDirection = TurnLeft(newDirection);
+			}
+			
+			SetFacing(newDirection);
+			
 			break;
 		}
 		
