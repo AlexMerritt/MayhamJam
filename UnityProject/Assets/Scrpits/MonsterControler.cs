@@ -8,8 +8,11 @@ public class MonsterControler : MonoBehaviour
 
     Vector3 pos;
 
+    Animator anim;
+
     void Start()
     {
+        anim = gameObject.transform.Find("MonsterAnim").GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -28,6 +31,10 @@ public class MonsterControler : MonoBehaviour
             movement.Normalize();
 
             movement *= Time.deltaTime * scrollSpeed;
+
+            
+
+            anim.SetFloat("Speed", 0);// movement.magnitude * scrollSpeed);
 
             pos += movement;
 
