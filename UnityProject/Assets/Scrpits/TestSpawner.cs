@@ -14,10 +14,13 @@ public class TestSpawner : MonoBehaviour {
 		}
 		
 		if (Input.GetKeyDown(KeyCode.V)) {
-			var worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			worldPos.z = 5;
+			Intersection inter = GameObject.FindObjectOfType<City>().RandomIntersection();
+			Vector3 worldPos = inter.Coordinates;
+			worldPos.z = -1.0f;
 			
-			GameObject.Instantiate(vehicleToSpawn, worldPos, Quaternion.identity);
+			GameObject newVehicle = (GameObject) GameObject.Instantiate(vehicleToSpawn, worldPos, Quaternion.identity);
+			newVehicle.GetComponent<Driver>().nextIntersection = inter;
+			newVehicle.GetComponent<Driver>().lastIntersection = inter;
 		}
 	}
 }

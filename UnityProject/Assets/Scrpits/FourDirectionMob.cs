@@ -68,8 +68,8 @@ public class FourDirectionMob : MonoBehaviour {
 
 	public bool Move (Direction moveDirection, float moveSpeed) {
 		if (true) { //TODO: check collision in desired direction?
-			SetFacing (moveDirection);
-			
+			//SetFacing (moveDirection);
+			//Debug.Log("YEAH I REALLY AM TRYING TO MOVE IN DIRECTION "+moveDirection+" WITH SPEED "+moveSpeed);
 			moving = true;
 
 			//translate object

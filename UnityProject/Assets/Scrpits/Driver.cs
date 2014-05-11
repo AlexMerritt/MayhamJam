@@ -10,8 +10,8 @@ public class Driver : FourDirectionMob {
 	float aggroRange = 4.0f;
 	float attackRange = 2.0f;
 	
-	Intersection nextIntersection;
-	Intersection lastIntersection;
+	public Intersection nextIntersection;
+	public Intersection lastIntersection;
 	
 	public float attackTime;
 	public float attackDamage;
@@ -19,33 +19,35 @@ public class Driver : FourDirectionMob {
 	//TODO: attack sounds and animation?
 	
 	GameObject monster;
-	public GameObject corpseObject;
-	
 	public City city;
+	
+	bool dead = false;
 	
 	// Use this for initialization
 	new public void Start () {
 		//store the monster for later use
 		monster = GameObject.FindWithTag("monster");
 		
-		lastIntersection = city.RandomIntersection();
-		transform.position = lastIntersection.Coordinates;
-		nextIntersection = lastIntersection;
+		//store the city for later use
+		city = GameObject.FindObjectOfType<City>();
 	}
 	
 	// Update is called once per frame
 	new public void Update () {
-		float distToMonster = Vector2.Distance(transform.position, monster.transform.position);
-		if (distToMonster <= attackRange) {
-			//ATTACK
-		} else if (nextIntersection.Contains(transform.position)) {
-			PickIntersection();
-		} else {
-			float moveSpeed = distToMonster <= aggroRange ? runSpeed : walkSpeed;
-			Move(curDirection, moveSpeed);
+		if (!dead) {
+			float distToMonster = Vector2.Distance(transform.position, monster.transform.position);
+			if (false) {//distToMonster <= attackRange) {
+				//ATTACK
+			} else if (nextIntersection.Contains(transform.position)) {
+				PickIntersection();
+			} else {
+				Debug.Log("MOVING to "+nextIntersection.Coordinates+" from position "+transform.position+" with speed "+runSpeed+" in direction "+curDirection);
+				//transform.Translate(Vector3.right * 10);
+				Move(curDirection, runSpeed);
+			}
+			
+			base.Update();
 		}
-		
-		base.Update();
 	}
 	
 	//just rotate sprites and don't bother with animations
@@ -53,7 +55,7 @@ public class Driver : FourDirectionMob {
 		if (curDirection != newDirection) {
 			curDirection = newDirection;
 			
-			int angle = (int)curDirection * 90;
+			int angle = ((int)curDirection * 90 + 270) % 360;
 			gameObject.transform.rotation = Quaternion.Euler(0, 0, angle);
 			
 			return true;
@@ -62,15 +64,18 @@ public class Driver : FourDirectionMob {
 		return false;
 	}
 	
-	//TODO: communicate with city map
-	public bool InIntersection() {
-		return false;
+	public void FaceIntersection(Intersection inter) {
+		Vector2 deltaPos = (Vector2)transform.position - inter.Coordinates;
+		var angle = Mathf.Atan2(deltaPos.y, deltaPos.x) * Mathf.Rad2Deg;
+		angle = (angle + 315) % 360;
+		FourDirectionMob.Direction faceDirection = (FourDirectionMob.Direction)Mathf.Floor(angle / 90);
+		SetFacing(faceDirection);
 	}
 	
 	//goodnight, sweet prince
 	public void Die() {
-		GameObject.Instantiate(corpseObject, transform.position, Quaternion.identity);
-		Destroy(gameObject);
+		dead = true;
+		anim.SetBool("Dead", true);
 	}
 	
 	public void PickIntersection() {
@@ -100,5 +105,9 @@ public class Driver : FourDirectionMob {
 			
 			nextIntersection = nextIntersection.GetNeighbor((global::Direction)curDirection);
 		}
+		
+		FaceIntersection(nextIntersection);
+		
+		Debug.Log("PickIntersection(): Next intersection is "+nextIntersection.Coordinates+" and last intersection was "+lastIntersection.Coordinates);
 	}
 }
