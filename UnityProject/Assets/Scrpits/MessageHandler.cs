@@ -18,25 +18,47 @@ public enum MessageIndex
 {
     Sarah0 = 0,
     Sarah1,
+    Sarah2,
     Mayor0,
     Mayor1,
+    Mayor2,
+    Mayor3,
+    Mayor4,
+    Mayor5,
+    Mayor6,
     News0,
     News1,
     News2,
     News3,
     News4,
+    News5,
+    News6,
     Detective0,
     Detective1,
     Detective2,
-    RoadHound69,
+    Detective3,
+    RoadHound0,
+    RoadHound1,
+    RoadHound2,
+    RoadHound3,
+    RoadHound4,
     Carrie0,
     Carrie1,
     Carrie2,
+    Carrie3,
+    Carrie4,
+    Carrie5,
+    Carrie6,
+    Carrie7,
+    Carrie8,
     Burger0,
     Burger1,
     Burger2,
+    Burger3,
+    Burger4,
+    Burger5,
+    Burger6,
 }
-
 
 public class MessageHandler : MonoBehaviour 
 {
@@ -48,7 +70,7 @@ public class MessageHandler : MonoBehaviour
     Queue<MessageIndex> activeMessages;
 
     const int MinGenericMessage = 0;
-    const int MaxGenericMessage = 18;
+    const int MaxGenericMessage = 41;
 
     public Message GetMessage(MessageIndex index)
     {
@@ -76,6 +98,9 @@ public class MessageHandler : MonoBehaviour
         AddMessage("SarahPark2016",
             "Our city needs a modern sewage system! Vote #SarahPark2016 if you agree with me!");
 
+        AddMessage("SarahPark2016",
+            "Have a minute to think about the future of El Dorado? Visit SarahPark2016.ca and read my campaign platform. Then, offer your thoughts!");
+
         // --- Mayor ---
         AddMessage("@MayorBob",
             "PARKING CHEATS ARE CITY THIEVES - if this keeps up we are adding chains to the meters");
@@ -83,6 +108,20 @@ public class MessageHandler : MonoBehaviour
         AddMessage("@MayorBob",
             "@SallyHFreed Yes Bob Rivera ‘15 campaign contributions give you tickets in the mayor’s raffle ball. Grand prize: school zone immunity");
 
+        AddMessage("@MayorBob",
+            "@LiveTeaOrDie Everything you have ever heard about my relationship with this city’s crystal meth community is a RED LIE");
+
+        AddMessage("@MayorBob",
+            "Note that while the bridge toll is an optional donation to the municipality, the tax and the trade tariff ARE NOT");
+
+        AddMessage("@MayorBob",
+            "Thank you @ConcernedCitizensOfCanada for your endorsement in the upcoming election- your support is valued and respected.");
+
+        AddMessage("@MayorBob",
+            "I am flattered and humbled every day to be mayor of Canada’s 109th most populous city");
+
+        AddMessage("@MayorBob",
+            "@DreamKitten22 Press conferences are over. I said that at the Last press conference- Chirps are how I will inform you all from now on");
 
         // --- News ---
         AddMessage("@EDRTNews",
@@ -100,6 +139,12 @@ public class MessageHandler : MonoBehaviour
         AddMessage("@EDRTNews",
             "NEW 7@7 - Seven Pets You Didn’t Know Made Great Pets For Your Grandparents #Living #News");
 
+        AddMessage("@EDRTNews",
+            "You Won’t Believe What This Mother Found in Her Garden");
+
+        AddMessage("@EDRTNews",
+            "7@7 - Seven Vacation Ideas That Won’t Stretch the Family Budget");
+
         // --- Detective Ben Bright ---
         AddMessage("@DetectiveBenBright",
             "A victimless crime is as impossible as a crimeless victim");
@@ -110,9 +155,24 @@ public class MessageHandler : MonoBehaviour
         AddMessage("@DetectiveBenBright",
             "Investigating arson outside the Broadmoore Building - the rank stank of crime and kerosene");
 
+        AddMessage("@DetectiveBenBright",
+            "Jelly Donut. Tim Hortons. Grey Skies. A chance of snow. The hunt is on.");
+
         // --- Road Hound ---
         AddMessage("@RoadHound69",
             "oh man synthetic jp-8 gives a really nasty head rush #notlovinit");
+
+        AddMessage("@RoadHound69",
+            "‘you miss 100% of the shots you don’t take’ -the great one");
+
+        AddMessage("@RoadHound69",
+            "Ninety percent of tank driving is mental. the other half is physical. soul is definately in there too");
+
+        AddMessage("@RoadHound69",
+            "FYCK YES RCS SALE ON RED BULL FLATS! #lovinit");
+        
+        AddMessage("@RoadHound69",
+            "*pumping iron* woah there dude in the mirror, let me get those for you *does double sets while reality twin stands awed, slowly clapping");
 
         // --- Carrie ---
         AddMessage("@CarrieOn",
@@ -122,7 +182,25 @@ public class MessageHandler : MonoBehaviour
             "@BirdsEyeVu - No idea why a snowy owl would even want to nest there");
 
         AddMessage("@CarrieOn",
-            "There really is nothing like going birding early morning with a mug of tea #Bliss");
+            "@LiveTeaOrDie There really is nothing like going birding early morning with a mug of tea #Bliss");
+
+        AddMessage("@CarrieOn",
+            "Spilt tea on my birding blanket :( #notlovinit #birding");
+
+        AddMessage("@CarrieOn",
+            "Just saw an Alder Flycatcher! Pretty early in the year for them to be around #birding ");
+
+        AddMessage("@CarrieOn",
+            "@BiNox afaik there is no version of that #birding app for Windows Phone :(");
+
+        AddMessage("@CarrieOn",
+            "@BirdsEyeVu Last time I was #birding in the states we were in Washington (the state not the capital :) )");
+
+        AddMessage("@CarrieOn",
+            "Something about spring makes me feel hopeful for the future. Must be all the #birds around :)");
+
+        AddMessage("@CarrieOn",
+            "Wow- just saw a flock of geese overhead! :D #birding #honkhonk");
 
         // --- Burger ---
         AddMessage("@JoeBurgerCorp",
@@ -133,6 +211,18 @@ public class MessageHandler : MonoBehaviour
 
         AddMessage("@JoeBurgerCorp",
             "@Freddinaut The secret to Joe’s Secret Sauce is… a secret ;-)");
+
+        AddMessage("@JoeBurgerCorp",
+            "@Freddinaut Joe does serve as commander-in-chief of the Burger Nation army, but the nation has always been at peace");
+
+        AddMessage("@JoeBurgerCorp",
+            "Have a craving for that south of the border taste? Burger Pizza Combos are back at Joe Burger for a limited time!");
+
+        AddMessage("@JoeBurgerCorp",
+            "@eye88kraze Joe doesn’t have a favorite burger. If he didn’t put heart into every last beefy morsel he wouldn’t even cook it");
+
+        AddMessage("@JoeBurgerCorp",
+            "@QueenGreen All of our franchises share in the jb 20% sustainability by 2020 commitment-philosophy (non-binding)");
     }
 
     void AddMessage(string name, string message)
@@ -172,4 +262,6 @@ public class MessageHandler : MonoBehaviour
             activeMessages.Enqueue(mi);
         }
     }
+
+    void 
 }
