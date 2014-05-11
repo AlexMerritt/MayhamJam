@@ -69,6 +69,7 @@ public class Monster : FourDirectionMob {
 		GameObject[] humans = GameObject.FindGameObjectsWithTag("human");
 		foreach (GameObject human in humans) {
 			if (stompBox.Contains(human.transform.position)) {
+				ParticleHelper.Instance.Splat(human.transform.position);
 				human.GetComponent<Walker>().Die();
 			}
 		}
