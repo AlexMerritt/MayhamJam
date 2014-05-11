@@ -51,9 +51,47 @@ public static class BuildingTypeUtil
 }
 
 public class Building : MonoBehaviour {
+	private Sprite current, damaged, rubble;
+	private float health, damagerate;
+	public void SetBuilding(Sprite normal, Sprite damaged, Sprite rubble, int size, float health)
+	{
+		this.current = normal;
+		this.damaged = damaged;
+		this.rubble = rubble;
+		SpriteRenderer render = this.GetComponent<SpriteRenderer>();
+		render.sprite = normal;
+		BoxCollider2D collider = this.GetComponent<BoxCollider2D>();
+		collider.size = new Vector2(size, size);
+		collider.center = new Vector2(size * 0.5f, size * 0.5f);
+		this.damagerate = 1.0f / health;
+	}
+
 	void Start() {
+		this.health = 1.0f;
 	}
 
 	void Update() {
+	}
+
+	public void Damage()
+	{
+		Sprite sp;
+		this.health -= this.damagerate * Time.deltaTime;
+		if (this.health < 0.0f) {
+			sp = this.rubble;
+			BoxCollider2D collider = this.GetComponent<BoxCollider2D>();
+			Destroy(collider);
+			Destroy(this);
+			this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, -0.1f);
+		} else if (this.health < 0.8) {
+			sp = this.damaged;
+		} else {
+			return;
+		}
+		SpriteRenderer render = this.GetComponent<SpriteRenderer>();
+		if (sp == null)
+			Destroy(render);
+		else
+			render.sprite = sp;
 	}
 }
