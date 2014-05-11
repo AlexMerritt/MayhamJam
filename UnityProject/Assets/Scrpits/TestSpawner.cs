@@ -8,7 +8,7 @@ public class TestSpawner : MonoBehaviour {
 	void Update () {
 		if (Input.GetKey(KeyCode.H)) {
 			var worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			worldPos.z = 5;
+			worldPos.z = -1.0f;
 			
 			GameObject.Instantiate(humanToSpawn, worldPos, Quaternion.identity);
 		}
