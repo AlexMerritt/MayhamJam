@@ -103,7 +103,7 @@ public class FourDirectionMob : MonoBehaviour {
 	}
 	
 	public Direction TurnRight(Direction dir) {
-		return (Direction)(((int)dir - 1) % 4);
+		return (Direction)(((int)dir + 3) % 4);
 	}
 	
 	public Direction TurnLeft(Direction dir) {

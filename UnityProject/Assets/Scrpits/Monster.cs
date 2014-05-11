@@ -9,7 +9,7 @@ public class Monster : FourDirectionMob {
 	public float curMomentum;
 	float maxMomentum = 50f;
 	float slapStrength = 2.0f;
-	float enticeStrength = 5.0f;
+	float enticeStrength = 8.0f;
 	
 	float enticeTurnThreshold = 20f;
 	
@@ -17,10 +17,17 @@ public class Monster : FourDirectionMob {
 	float wanderCooldownTime = 1.5f;
 	float wanderCooldown;
 	
-	public GameObject prefabHuman;
+	float baseDecay = 10.0f;
+	
+	public GameObject deadHuman;
+	
+	public Rect stompBox;
 
 	// Use this for initialization
 	new public void Start () {
+		stompBox = new Rect(0, 0, 0.3f, 0.3f);
+		stompBox.center = new Vector2(transform.position.x, transform.position.y - 0.3f);
+		
 		RandomizeFacing();
 		wanderCooldown = wanderCooldownTime;
 	}
@@ -43,13 +50,6 @@ public class Monster : FourDirectionMob {
 			Entice(enticeDirection);
 		}
 		
-		if (Input.GetMouseButtonDown(1)) {
-			var worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			worldPos.z = 5;
-			
-			GameObject.Instantiate(prefabHuman, worldPos, Quaternion.identity);
-		}
-		
 		//TODO: check for things to respond to
 		
 		//wander if momentum is critically low
@@ -62,9 +62,26 @@ public class Monster : FourDirectionMob {
 		float moveSpeed = Mathf.Max(walkSpeed, runSpeed * (curMomentum / maxMomentum));
 		Move (curDirection, moveSpeed);
 		
+		//update stomp box
+		stompBox.center = new Vector2(transform.position.x, transform.position.y - 0.3f);
+		
+		//crush puny humans
+		GameObject[] humans = GameObject.FindGameObjectsWithTag("human");
+		foreach (GameObject human in humans) {
+			if (stompBox.Contains(human.transform.position)) {
+				human.GetComponent<Walker>().Die();
+			}
+		}
+		
+		//lose momentum over time
+		curMomentum -= baseDecay * Time.deltaTime;
+		if (curMomentum < 0) curMomentum = 0;
+		
 		//decrement timer(s)
 		if (wanderCooldown > 0)
 			wanderCooldown -= Time.deltaTime;
+			
+		
 	}
 	
 	//punish the monster, slowing it down and hurting its feelings

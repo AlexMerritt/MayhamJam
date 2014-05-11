@@ -19,6 +19,7 @@ public class Walker : FourDirectionMob {
 	float fleeDetectRange = 1.5f;
 	
 	GameObject monster;
+	public GameObject corpseObject;
 
 	// Use this for initialization
 	new public void Start () {
@@ -79,9 +80,9 @@ public class Walker : FourDirectionMob {
 			Direction newDirection = VecToDirection(relPos);
 			
 			float turnChance = UnityEngine.Random.value;
-			if (turnChance <= 0.1) {
+			if (turnChance <= 0.15) {
 				newDirection = TurnRight(newDirection);
-			} else if (turnChance <= 0.2) {
+			} else if (turnChance <= 0.3) {
 				newDirection = TurnLeft(newDirection);
 			}
 			
@@ -128,5 +129,11 @@ public class Walker : FourDirectionMob {
 		case WalkerState.Flee:
 			break;
 		}
+	}
+	
+	//goodnight, sweet prince
+	public void Die() {
+		GameObject.Instantiate(corpseObject, transform.position, Quaternion.identity);
+		Destroy(gameObject);
 	}
 }

@@ -4,7 +4,8 @@ using System.Collections;
 public class TestControls : FourDirectionMob {
 	// Update is called once per frame
 	new public void Update () {
-		//TODO: remove this control
+		base.Update ();
+		
 		bool running = Input.GetKey (KeyCode.LeftShift);
 		float moveSpeed = running ? runSpeed : walkSpeed;
 		
@@ -20,7 +21,5 @@ public class TestControls : FourDirectionMob {
 		if (Input.GetKey (KeyCode.A)) {
 			Move (Direction.West, moveSpeed);
 		}
-		
-		base.Update ();
 	}
 }
