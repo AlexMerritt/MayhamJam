@@ -438,6 +438,7 @@ public class MessageHandler : MonoBehaviour
             var popUp = GameObject.Find("PopUp").GetComponent<PopUp>();
             popUp.messageIndex = activeMessages.Dequeue();
             popUp.UpdatePopUp();
+            gameObject.GetComponent<AudioSource>().Play();
 
             //Debug.Log("Start next message");
 

@@ -11,6 +11,9 @@ public class MonsterControler : MonoBehaviour
 
     Animator anim;
 
+    AudioSource source;
+    AudioClip walk;
+
     void Start()
     {
         anim = gameObject.transform.Find("MonsterAnim").GetComponent<Animator>();
@@ -55,13 +58,27 @@ public class MonsterControler : MonoBehaviour
 
             speed = prePos - pos;
 
-            float velocity = speed.x + speed.y;
+            float velocity = speed.x + speed.y* 10;
 
-            anim.SetFloat("Speed", velocity * 10);
+            anim.SetFloat("Speed", velocity );
+
+            if (velocity > 0.01f || velocity < -0.01)
+            {
+                var walk = transform.Find("Walk").GetComponent<AudioSource>();
+                if (!walk.isPlaying)
+                {
+                    walk.Play();
+                }
+            }
 
             prePos = pos;
 
-            //Debug.Log(velocity);
+            Debug.Log(velocity);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Joystick1Button0))
+        {
+            gameObject.transform.Find("Roar").GetComponent<AudioSource>().Play();
         }
 
         Vector3 zPos = gameObject.transform.position;
@@ -70,5 +87,9 @@ public class MonsterControler : MonoBehaviour
 
 
         gameObject.transform.position = zPos;
+    }
+
+    public static void PlayWalk()
+    {
     }
 }

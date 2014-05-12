@@ -81,10 +81,13 @@ public class Building : MonoBehaviour {
 		this.health -= this.damagerate * Time.deltaTime;
 		if (this.health < 0.0f) {
 			CityManager mgr = GameObject.Find("City").GetComponent<CityManager>();
-			if (mgr != null)
-				mgr.AddChaos(this.chaos);
-			else
-				Debug.LogError("Could not find city manager to add chaos");
+            if (mgr != null)
+            {
+                gameObject.GetComponent<AudioSource>().Play();
+                mgr.AddChaos(this.chaos);
+            }
+            else
+                Debug.LogError("Could not find city manager to add chaos");
 			sp = this.rubble;
 			BoxCollider2D collider = this.GetComponent<BoxCollider2D>();
 			Destroy(collider);
