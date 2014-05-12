@@ -15,12 +15,9 @@ public class TestSpawner : MonoBehaviour {
 		
 		if (Input.GetKeyDown(KeyCode.V)) {
 			Intersection inter = GameObject.FindObjectOfType<City>().RandomIntersection();
-			Vector3 worldPos = inter.Coordinates;
-			worldPos.z = -1.0f;
-			
-			GameObject newVehicle = (GameObject) GameObject.Instantiate(vehicleToSpawn, worldPos, Quaternion.identity);
-			newVehicle.GetComponent<Driver>().nextIntersection = inter;
-			newVehicle.GetComponent<Driver>().lastIntersection = inter;
+			Debug.Log(string.Format("Intersection is null? {0}", inter == null));
+			GameObject newVehicle = (GameObject) GameObject.Instantiate(vehicleToSpawn);
+			newVehicle.GetComponent<Driver>().SetIntersection(inter);
 		}
 	}
 }

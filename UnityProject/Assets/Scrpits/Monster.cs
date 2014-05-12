@@ -43,7 +43,7 @@ public class Monster : FourDirectionMob {
 			var dir = Input.mousePosition - pos;
 			var angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
 			angle = (angle + 315) % 360;
-			FourDirectionMob.Direction enticeDirection = (FourDirectionMob.Direction)Mathf.Floor(angle / 90);
+			Direction enticeDirection = (Direction)Mathf.Floor(angle / 90);
 			
 			Entice(enticeDirection);
 		}

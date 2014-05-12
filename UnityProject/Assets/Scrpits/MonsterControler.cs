@@ -61,7 +61,7 @@ public class MonsterControler : MonoBehaviour
 
             prePos = pos;
 
-            Debug.Log(velocity);
+            // Debug.Log(velocity);
         }
 
         Vector3 zPos = gameObject.transform.position;

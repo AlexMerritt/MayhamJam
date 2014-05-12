@@ -1,5 +1,6 @@
 public enum Direction {
-	Up, Left, Down, Right
+	Up, Left, Down, Right,
+	North=Up, East=Right, South=Down, West=Left
 }
 
 public static class DirectionExtensions {

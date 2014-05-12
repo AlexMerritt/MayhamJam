@@ -3,13 +3,6 @@ using System.Collections;
 using System;
 
 public class FourDirectionMob : MonoBehaviour {
-	public enum Direction {
-		North,
-		West,
-		South,
-		East
-	}
-
 	public Direction curDirection;
 	
 	public float walkSpeed;
