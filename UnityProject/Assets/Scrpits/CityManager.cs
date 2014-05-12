@@ -24,7 +24,7 @@ public class CityManager : MonoBehaviour
     public GameObject prefabHuman;
     float humanSpawnFrequency = 1.0f;
     float humanSpawnTimer = 0.0f;
-    float humanPopDensity = 0.5f;
+    float humanPopDensity = 0.1f;
 
 	// Use this for initialization
 	void Start ()

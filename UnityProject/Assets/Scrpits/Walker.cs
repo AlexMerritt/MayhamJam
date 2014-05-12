@@ -16,7 +16,7 @@ public class Walker : FourDirectionMob {
 	
 	float wanderMoveChance = 0.4f;
 	
-	float fleeDetectRange = 1.5f;
+	float fleeDetectRange = 15f;
 	
 	GameObject monster;
 	public GameObject corpseObject;
