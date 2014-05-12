@@ -23,6 +23,9 @@ public class Monster : FourDirectionMob {
 
 	public Vector2 stompSize;
 	public float stompPos;
+	
+	public Vector2 humanStompSize;
+	public float humanStompPos;
 
 	// Use this for initialization
 	new public void Start () {
@@ -75,6 +78,13 @@ public class Monster : FourDirectionMob {
 			if (bldg != null)
 				bldg.Damage();
 		}
+		
+		//define human stomp area
+		stompBox = new Rect(
+			transform.position.x-humanStompSize.x*0.5f,
+			transform.position.y-humanStompSize.y*0.5f + humanStompPos,
+			stompSize.x,
+			stompSize.y);
 
 		//crush puny humans
 		GameObject[] humans = GameObject.FindGameObjectsWithTag("human");
@@ -92,8 +102,6 @@ public class Monster : FourDirectionMob {
 		//decrement timer(s)
 		if (wanderCooldown > 0)
 			wanderCooldown -= Time.deltaTime;
-			
-		
 	}
 	
 	//punish the monster, slowing it down and hurting its feelings

@@ -16,11 +16,14 @@ public class MonsterControler : MonoBehaviour
         anim = gameObject.transform.Find("MonsterAnim").GetComponent<Animator>();
 
         prePos = Vector3.zero;
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        Vector3 speed = Vector3.zero;
+
         float xAxisValue = Input.GetAxis("Horizontal");
         float yAxisValue = Input.GetAxis("Vertical");
 
@@ -50,22 +53,21 @@ public class MonsterControler : MonoBehaviour
             Camera.current.transform.position = p2;// Translate(movement * scrollSpeed * Time.deltaTime);// * Time.deltaTime);//new Vector3(xAxisValue, yAxisValue, 0.0f));
             gameObject.transform.position = pos;
 
-            Vector3 speed = prePos - pos;
+            speed = prePos - pos;
 
-            float velocity = Mathf.Abs(speed.x + speed.y);
+            float velocity = speed.x + speed.y;
 
-
-
-            anim.SetFloat("Speed", velocity);
+            anim.SetFloat("Speed", velocity * 10);
 
             prePos = pos;
 
-            Debug.Log(pos);
+            //Debug.Log(velocity);
         }
 
         Vector3 zPos = gameObject.transform.position;
 
-        zPos.z = pos.y * 0.01f - 6.025f;
+        zPos.z = pos.y * 0.01f - 6.04f;
+
 
         gameObject.transform.position = zPos;
     }

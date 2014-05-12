@@ -20,6 +20,11 @@ public class CityManager : MonoBehaviour
     public int chaosLossPerSecond;
 
     float timer;
+    
+    public GameObject prefabHuman;
+    float humanSpawnFrequency = 1.0f;
+    float humanSpawnTimer = 0.0f;
+    float humanPopDensity = 0.5f;
 
 	// Use this for initialization
 	void Start ()
@@ -47,6 +52,12 @@ public class CityManager : MonoBehaviour
         {
             timer = 0.0f;
             AddChaos(-1);
+        }
+        
+        humanSpawnTimer -= Time.deltaTime;
+        if (humanSpawnTimer <= 0) {
+        	SpawnHumans();
+        	humanSpawnTimer = humanSpawnFrequency;
         }
 	}
 
@@ -94,5 +105,21 @@ public class CityManager : MonoBehaviour
     public float GetChaosLevelf()
     {
         return chaosLevel / maxChaosLevel;
+    }
+    
+    public void SpawnHumans() {
+    	GameObject[] humans = GameObject.FindGameObjectsWithTag("human");
+    	int currentPop = humans.Length;
+    	
+    	City city = GameObject.FindObjectOfType<City>().GetComponent<City>();
+    	int targetPop = (int)(city.Width * city.Height * humanPopDensity);
+    	
+    	//Debug.Log("Replenishing population from "+currentPop+" to "+targetPop);
+    	
+    	while (currentPop < targetPop) {
+			Vector3 spawnPos = new Vector3(UnityEngine.Random.Range(0, city.Width), UnityEngine.Random.Range(0, city.Height), -1.0f);
+			GameObject.Instantiate(prefabHuman, spawnPos, Quaternion.identity);
+			currentPop++;
+    	}
     }
 }
